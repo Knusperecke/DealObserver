@@ -4,7 +4,22 @@
   "description": "Catch prices and updated offers from Canyon",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "check-format": "check-clang-format \"npm format\"",
+    "format": "git-clang-format",
+    "lint": "eslint ./ --cache --ignore-pattern .gitignore",
+    "precommit-msg": "echo 'Pre-commit checks ...' && exit 0"
+  },
+  "pre-commit": [
+    "precommit-msg",
+    "lint",
+    "check-format"
+  ],
+  "dependencies": {
+    "clang-format": "^1.2.2",
+    "husky": "^0.14.3",
+    "eslint": "^4.15.0",
+    "pre-commit": "^1.2.2"
   },
   "author": "Tobias Hilbrich",
   "license": "BSD-2-Clause"
