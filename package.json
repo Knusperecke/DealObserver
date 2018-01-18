@@ -1,0 +1,11 @@
+{
+  "name": "canyon-grabber",
+  "version": "0.0.1-alpha",
+  "description": "Catch prices and updated offers from Canyon",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "Tobias Hilbrich",
+  "license": "BSD-2-Clause"
+}
