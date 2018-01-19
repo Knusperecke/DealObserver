@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-const HttpHelper = require("../../src/util/httpHelper");
-const assert = require("chai").assert;
-const sinon = require("sinon");
+const HttpHelper = require('../../src/util/httpHelper');
+const assert = require('chai').assert;
+const sinon = require('sinon');
 
 describe('HttpHelper', () => {
     describe('get', () => {
@@ -28,14 +28,14 @@ describe('HttpHelper', () => {
         });
 
         it('should resolve when onreadystatechange is triggered with ready state 4', () => {
-            const promise = HttpHelper.get('example.com', request);
+            HttpHelper.get('example.com', request);
             request.onreadystatechange();
 
             return promise;
         });
 
         it('should reject if status is not 200', async () => {
-            const promise = HttpHelper.get('example.com', request);
+            HttpHelper.get('example.com', request);
             request.status = 400;
             request.onreadystatechange();
 
@@ -50,21 +50,21 @@ describe('HttpHelper', () => {
         });
 
         it('should return the response from the Http get request', async () => {
-            const promise = HttpHelper.get('example.com', request);
+            HttpHelper.get('example.com', request);
             const expectedResponse = 'Hello World!';
-            request.responseText = expectedResponse
+            request.responseText = expectedResponse;
             request.onreadystatechange();
 
             await promise.then((response) => assert.ok(response === expectedResponse));
         });
 
         it('should do nothing for onreadystatechange with ready state != 4', async () => {
-            const promise = HttpHelper.get('example.com', request);
+            HttpHelper.get('example.com', request);
             request.readyState = 1;
             request.onreadystatechange();
 
             const expectedResponse = 'Hello World!';
-            request.responseText = expectedResponse
+            request.responseText = expectedResponse;
             request.readyState = 4;
             request.onreadystatechange();
 

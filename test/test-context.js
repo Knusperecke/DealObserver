@@ -1,4 +1,4 @@
-require("babel-polyfill");
+require('babel-polyfill');
 
-var context = require.context("./", true, /\.mocha\.js$/);
+var context = require.context('./', true, /\.mocha\.js$/);
 context.keys().forEach(context);

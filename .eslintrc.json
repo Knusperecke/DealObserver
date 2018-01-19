@@ -2,11 +2,13 @@
     "env": {
         "browser": true,
         "es6": true,
-        "node": true
+        "node": true,
+        "mocha": true
     },
     "extends": "eslint:recommended",
     "parserOptions": {
-        "sourceType": "module"
+        "sourceType": "module",
+        "ecmaVersion": 2017
     },
     "rules": {
         "indent": 0,
@@ -16,11 +18,17 @@
         ],
         "quotes": [
             "error",
-            "double"
+            "single"
         ],
         "semi": [
             "error",
             "always"
         ]
+    },
+    "plugins": [
+        "mocha"
+    ],
+    "rules": {
+        "mocha/no-exclusive-tests": "error"
     }
 }

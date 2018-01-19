@@ -4,9 +4,10 @@
   "description": "Catch prices and updated offers from Canyon",
   "main": "index.js",
   "scripts": {
-    "test": "karma start",
+    "test": "mocha \"test/**/*.mocha.js\"",
+    "test-browser": "karma start",
     "check-format": "check-clang-format \"npm run format\"",
-    "format": "git-clang-format",
+    "format": "git-clang-format -f",
     "lint": "eslint ./ --cache --ignore-pattern .gitignore",
     "precommit-msg": "echo 'Pre-commit checks ...' && exit 0"
   },
@@ -23,6 +24,7 @@
     "chai": "^4.1.2",
     "clang-format": "^1.2.2",
     "eslint": "^4.15.0",
+    "eslint-plugin-mocha": "^4.11.0",
     "husky": "^0.14.3",
     "karma": "^2.0.0",
     "karma-chrome-launcher": "^2.2.0",
