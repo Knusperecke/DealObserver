@@ -28,14 +28,12 @@ describe('HttpHelper', () => {
         });
 
         it('should resolve when onreadystatechange is triggered with ready state 4', () => {
-            HttpHelper.get('example.com', request);
             request.onreadystatechange();
 
             return promise;
         });
 
         it('should reject if status is not 200', async () => {
-            HttpHelper.get('example.com', request);
             request.status = 400;
             request.onreadystatechange();
 
@@ -50,7 +48,6 @@ describe('HttpHelper', () => {
         });
 
         it('should return the response from the Http get request', async () => {
-            HttpHelper.get('example.com', request);
             const expectedResponse = 'Hello World!';
             request.responseText = expectedResponse;
             request.onreadystatechange();
@@ -59,7 +56,6 @@ describe('HttpHelper', () => {
         });
 
         it('should do nothing for onreadystatechange with ready state != 4', async () => {
-            HttpHelper.get('example.com', request);
             request.readyState = 1;
             request.onreadystatechange();
 
