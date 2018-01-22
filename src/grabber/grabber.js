@@ -2,6 +2,7 @@
 
 const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 const HttpHelper = require('../util/httpHelper');
+const Logger = require('../util/logger');
 
 function pass() {
     /*
@@ -22,12 +23,12 @@ function pass() {
         const url = baseUrl + category + type
         HttpHelper.get(url, new XMLHttpRequest())
             .catch(() => {
-                console.log('Failed to querry url=', url);
+                Logger.log('Failed to querry url=', url);
             })
             .then((result) => {
-                console.log('Got data from remote url=', url);
+                Logger.log('Got data from remote url=', url);
                 const items = processOutletData(result);
-                console.log(items);
+                Logger.log(items);
                 // TODO go on here
             });
     });
@@ -50,7 +51,7 @@ function processOutletData(htmlBlob) {
         results[name] = results[name].concat(names);
     });
 
-    console.log(
+    Logger.log(
         'Filtered outlet data names.length=', results.names.length, ' prices.length=', results.prices.length,
         ' skus.length=', results.skus.length, 'sizes.length=', results.sizes.length);
 
@@ -69,7 +70,7 @@ function processOutletData(htmlBlob) {
             {name: name, price: results.prices[index], sku: results.skus[index], size: results.sizes[index]});
     });
 
-    console.log('Parsed ' + returnValue.length + ' items, returning them');
+    Logger.log('Parsed ' + returnValue.length + ' items, returning them');
     return returnValue;
 }
 
