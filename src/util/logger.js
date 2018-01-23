@@ -12,7 +12,7 @@ function warn() {
 
 function error() {
     // eslint-disable-next-line no-console
-    console.error().apply(console, arguments);
+    console.error.apply(console, arguments);
 }
 
 module.exports = {

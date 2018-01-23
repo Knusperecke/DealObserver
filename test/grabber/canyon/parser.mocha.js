@@ -3,7 +3,7 @@
 const Parser = require('../../../src/grabber/canyon/parser');
 const assert = require('chai').assert;
 
-describe('Canyon Parser', () => {
+describe('Canyon parser', () => {
     it('Returns an empty array for empty input', () => {
         assert.deepEqual(Parser(''), []);
     });

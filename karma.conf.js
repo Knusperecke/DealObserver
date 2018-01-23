@@ -23,7 +23,8 @@ module.exports = function(config) {
         preprocessors: {'test/test-context.js': ['webpack']},
         webpack: {
             module: {loaders: [{test: /\.js/, exclude: /node_modules/, loader: 'babel-loader?presets[]=es2015'}]},
-            watch: true
+            watch: true,
+            externals: [{xmlhttprequest: '{XMLHttpRequest:XMLHttpRequest}'}]
         },
 
         // test results reporter to use
