@@ -26,10 +26,29 @@ describe('Canyon fetcher', () => {
 
         let didAssertionFail = false;
         await Promise.all(promises.map(async (promise) => {
-            promise.catch(() => {
+            await promise.catch(() => {
                 didAssertionFail = true;
             });
         }));
         assert.notOk(didAssertionFail);
+    });
+
+    it('Wraps the returned data into an object with "type" and "data"', async () => {
+        const expectedData = 'example-data';
+        httpGet = sinon.stub().returns(Promise.resolve(expectedData));
+
+        const returnedObjects = [];
+        await Promise.all(Fetcher(httpGet).map(async (promise) => {
+            await promise.then((object) => {
+                returnedObjects.push(object);
+            });
+        }));
+
+        assert.ok(returnedObjects.length);
+        returnedObjects.forEach((object) => {
+            assert.isObject(object);
+            assert.property(object, 'type');
+            assert.include(object, {data: expectedData});
+        });
     });
 });
