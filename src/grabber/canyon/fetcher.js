@@ -31,13 +31,14 @@ function outlet(HttpGet) {
 }
 
 function normalOffers(HttpGet) {
-    const baseUrl = 'https://www.canyon.com/en/road/';
+    const baseUrl = 'https://www.canyon.com/en/';
     const subUrls = [
-        'aeroad/', 'ultimate/evo/', 'ultimate/cf-slx/', 'ultimate/cf-sl/', 'ultimate/al-slx/', 'endurace/cf-slx/',
-        'endurace/cf-sl/', 'endurace/cf/', 'endurace/al/', 'inflite/'
+        'road/aeroad/', 'road/ultimate/evo/', 'road/ultimate/cf-slx/', 'road/ultimate/cf-sl/', 'road/ultimate/al-slx/',
+        'road/endurace/cf-slx/', 'road/endurace/cf-sl/', 'road/endurace/cf/', 'road/endurace/al/', 'road/inflite/',
+        'triathlon/speedmax/cf-slx/', 'triathlon/speedmax/cf/'
     ];
-    const openQueries = [];
 
+    const openQueries = [];
     subUrls.forEach((sub) => {
         const url = baseUrl + sub
         openQueries.push(attachQueryHandler(HttpGet(url, new XMLHttpRequestImpl()), url).then((data) => {
