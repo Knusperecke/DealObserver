@@ -34,6 +34,7 @@
     "karma-webpack": "^2.0.9",
     "karma-webpack-preprocessor": "^1.0.1",
     "mocha": "^5.0.0",
+    "mysql": "^2.15.0",
     "nyc": "^11.4.1",
     "pre-commit": "^1.2.2",
     "sinon": "^4.1.6",
