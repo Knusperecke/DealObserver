@@ -12,16 +12,14 @@ function close(connection, callback) {
         }
 
         Logger.log('Closed database');
-        if (callback)
-        {
+        if (callback) {
             callback();
         }
     });
 }
 
-function connect (host, user, password, databaseName) {
-    const connection =
-        MySql.createConnection({host: host, user: user, password: password, database: databaseName});
+function connect(host, user, password, databaseName) {
+    const connection = MySql.createConnection({host: host, user: user, password: password, database: databaseName});
     connection.connect((error) => {
         if (error) {
             throw new Error('Failed in database connection: ' + error);
@@ -30,14 +28,11 @@ function connect (host, user, password, databaseName) {
         Logger.log('Connected to databse');
     });
 
-    const db = {
-        query: Query.bind(this, connection),
-        close: close.bind(this, connection)
-    };
+    const db = {query: Query.bind(this, connection), close: close.bind(this, connection)};
 
     EnsureDatabaseSetup(db);
 
     return db;
 }
 
-module.exports=connect;
+module.exports = connect;

@@ -2,7 +2,7 @@
 
 const Logger = require('../util/logger');
 
-function setup (db) {
+function setup(db) {
     db.query(
         'CREATE TABLE IF NOT EXISTS Items (' +
         'ID INT NOT NULL,' +
@@ -15,8 +15,7 @@ function setup (db) {
         'foundTime DATETIME,' +
         'lostTime DATETIME,' +
         'foundCount INT' +
-        ')'
-    );
+        ')');
 
     Logger.log('Ensured database setup')
 }
