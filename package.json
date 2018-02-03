@@ -10,7 +10,7 @@
     "format": "git-clang-format -f",
     "lint": "eslint ./ --cache --ignore-pattern .gitignore",
     "precommit-msg": "echo 'Pre-commit checks ...' && exit 0",
-    "run": "node src/grabber/grabber.js"
+    "run": "node src/grabber/main.js"
   },
   "pre-commit": [
     "precommit-msg",

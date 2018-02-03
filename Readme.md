@@ -12,8 +12,8 @@ brew install mysql
 brew services start mysql
 mysql_secure_installation ##PinkiePie
 
-#launch SequelPro
-# create database "canyon"
+#Launch SequelPro
+# => create databases "canyon" and "test"
 ```
 
 Install and Run:

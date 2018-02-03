@@ -24,7 +24,10 @@ module.exports = function(config) {
         webpack: {
             module: {loaders: [{test: /\.js/, exclude: /node_modules/, loader: 'babel-loader?presets[]=es2015'}]},
             watch: true,
-            externals: [{xmlhttprequest: '{XMLHttpRequest:XMLHttpRequest}'}]
+            externals: [
+                {xmlhttprequest: '{XMLHttpRequest:XMLHttpRequest}'}, {net: '{net:net}'}, {fs: '{fs:fs}'},
+                {tls: '{tls:tls}'}
+            ]
         },
 
         // test results reporter to use
