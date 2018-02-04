@@ -56,16 +56,18 @@ describe('Database', () => {
         db.close();
     });
 
-    it('Database has a table named "Items"', async () => {
-        const db = createDatabase();
+    ['models', 'current', 'history'].forEach((name) => {
+        it(`Database has a table named ${name}`, async () => {
+            const db = createDatabase();
 
-        await new Promise((resolve) => {
-            db.query('SELECT * FROM Items', function() {
-                assert.ok(true);
-                resolve();
+            await new Promise((resolve) => {
+                db.query(`SELECT * FROM ${name}`, function() {
+                    assert.ok(true);
+                    resolve();
+                });
             });
-        });
 
-        db.close();
-    })
+            db.close();
+        });
+    });
 });
