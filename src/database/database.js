@@ -3,6 +3,7 @@
 const MySql = require('mysql');
 const EnsureDatabaseSetup = require('./setup');
 const Query = require('./query');
+const Push = require('./push');
 const Logger = require('../util/logger');
 
 function close(connection, callback) {
@@ -28,7 +29,11 @@ function connect(host, user, password, databaseName) {
         Logger.log('Connected to databse');
     });
 
-    const db = {query: Query.bind(this, connection), close: close.bind(this, connection)};
+    const db = {
+        query: Query.bind(this, connection),
+        close: close.bind(this, connection),
+        push: Push.bind(this, connection)
+    };
 
     EnsureDatabaseSetup(db);
 

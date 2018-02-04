@@ -70,4 +70,50 @@ describe('Database', () => {
             db.close();
         });
     });
+
+    it('Returns an object with a "push" function', () => {
+        const db = createDatabase();
+        assert.isFunction(db.push)
+        db.close();
+    });
+
+    it('"push" function accepts an empty array', async () => {
+        const db = createDatabase();
+        await db.push([]).then(() => assert.ok(true));
+        db.close();
+    });
+
+    it('"push" function returns a promise that provides an object', async () => {
+        const db = createDatabase();
+        await db.push([]).then((updates) => {
+            assert.isObject(updates);
+            assert.deepEqual(updates.priceUpdats.length, 0);
+            assert.deepEqual(updates.newOffers.length, 0);
+        });
+        db.close();
+    });
+
+    it('"push" function handles a new item', async () => {
+        const db = createDatabase();
+
+        const newItem = {
+            name: 'Speedmax CF 9.0 2017',
+            id: 'speedmax cf 9.0 2017',
+            price: 2299,
+            offerId: '000000000000111695',
+            size: '|XL|',
+            modelYear: '2017',
+            permanent: false,
+            url: 'someUrl',
+            condition: 'new'
+        };
+
+        await db.push([newItem]).then((updates) => {
+            assert.isObject(updates);
+            assert.deepEqual(updates.priceUpdats.length, 1);
+            assert.deepEqual(updates.priceUpdats[0], newItem);
+            assert.deepEqual(updates.newOffers.length, 0);
+        });
+        db.close();
+    });
 });
