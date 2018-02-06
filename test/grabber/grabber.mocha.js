@@ -6,13 +6,19 @@ const assert = require('chai').assert;
 
 describe('Grabber', () => {
     let config = {};
-    function createGrabber(fetchPromises = []) {
+    function createGrabber(
+        fetcherMock = sinon.stub().returns([]), parserMock = sinon.stub().returns([]),
+        pushMock = sinon.stub().returns({offerIds: [], newOffers: [], priceUpdates: []})) {
         config.closeDatabase = sinon.spy();
-        config.databaseMock = sinon.stub().returns({close: config.closeDatabase});
-        config.fetcherMock = sinon.stub().returns(fetchPromises);
-        config.parserSpy = sinon.spy();
+        config.push = pushMock;
+        config.updateCurrent = sinon.spy();
+        config.databaseMock =
+            sinon.stub().returns({close: config.closeDatabase, push: config.push, updateCurrent: config.updateCurrent});
+        config.fetcherMock = fetcherMock;
+        config.parserMock = parserMock;
+        config.notifierMock = sinon.spy();
 
-        return Grabber(config.databaseMock, config.fetcherMock, config.parserSpy);
+        return Grabber(config.databaseMock, config.fetcherMock, config.parserMock, config.notifierMock);
     }
 
     it('Provides a function to run', () => {
@@ -28,9 +34,87 @@ describe('Grabber', () => {
 
     it('Passes fetcher results to parser', async () => {
         const expectedData = 'data';
-        const fetchPromise = new Promise((resolve) => resolve(expectedData));
-        await createGrabber([fetchPromise]);
+        const fetcherMock = sinon.stub().returns([Promise.resolve(expectedData)]);
+        await createGrabber(fetcherMock);
 
-        assert.ok(config.parserSpy.calledWith(expectedData));
+        assert.ok(config.parserMock.calledWith(expectedData));
+    });
+
+    it('Passes parser results to database.push', async () => {
+        const expectedData = 'data';
+        const fetcherMock = sinon.stub().returns([Promise.resolve()]);
+        const parserMock = sinon.stub().returns(Promise.resolve(expectedData));
+        await createGrabber(fetcherMock, parserMock);
+
+        assert.ok(config.push.calledWith(expectedData));
+    });
+
+    it('Passes offerIds from database.push to database.updateCurrent', async () => {
+        const fetcherMock = sinon.stub().returns([Promise.resolve()]);
+        const parserMock = sinon.stub().returns(Promise.resolve());
+        const dbPushMock = sinon.stub().returns(Promise.resolve({offerIds: [123], newOffers: [], priceUpdates: []}));
+        await createGrabber(fetcherMock, parserMock, dbPushMock);
+
+        assert.ok(config.updateCurrent.calledWith([123]));
+    });
+
+    it('Passes offerIds from distinct database.push calls to database.updateCurrent', async () => {
+        const expectedOfferIds = [123, 456];
+        const fetcherMock = sinon.stub().returns([Promise.resolve(), Promise.resolve()]);
+        const parserMock = sinon.stub().returns(Promise.resolve());
+        const dbPushMock = sinon.stub()
+                               .onFirstCall()
+                               .returns(Promise.resolve({offerIds: [123], newOffers: [], priceUpdates: []}))
+                               .onSecondCall()
+                               .returns(Promise.resolve({offerIds: [456], newOffers: [], priceUpdates: []}));
+        await createGrabber(fetcherMock, parserMock, dbPushMock);
+
+        assert.ok(config.updateCurrent.calledWith(expectedOfferIds));
+    });
+
+    it('Passes new offers to notifier', async () => {
+        const fetcherMock = sinon.stub().returns([Promise.resolve()]);
+        const parserMock = sinon.stub().returns(Promise.resolve());
+        const dbPushMock = sinon.stub().returns(Promise.resolve({offerIds: [], newOffers: [123], priceUpdates: []}));
+        await createGrabber(fetcherMock, parserMock, dbPushMock);
+
+        assert.ok(config.notifierMock.calledWith([123]));
+    });
+
+    it('Passes new offers from distinct push calls to notifier', async () => {
+        const expectedNewOffers = [123, 456];
+        const fetcherMock = sinon.stub().returns([Promise.resolve(), Promise.resolve()]);
+        const parserMock = sinon.stub().returns(Promise.resolve());
+        const dbPushMock = sinon.stub()
+                               .onFirstCall()
+                               .returns(Promise.resolve({offerIds: [], newOffers: [123], priceUpdates: []}))
+                               .onSecondCall()
+                               .returns(Promise.resolve({offerIds: [], newOffers: [456], priceUpdates: []}));
+        await createGrabber(fetcherMock, parserMock, dbPushMock);
+
+        assert.ok(config.notifierMock.calledWith(expectedNewOffers));
+    });
+
+    it('Passes price updates to notifier', async () => {
+        const fetcherMock = sinon.stub().returns([Promise.resolve()]);
+        const parserMock = sinon.stub().returns(Promise.resolve());
+        const dbPushMock = sinon.stub().returns(Promise.resolve({offerIds: [], newOffers: [], priceUpdates: [123]}));
+        await createGrabber(fetcherMock, parserMock, dbPushMock);
+
+        assert.ok(config.notifierMock.calledWith([], [123]));
+    });
+
+    it('Passes price updates from distinct push calls to notifier', async () => {
+        const expectedPriceUpdates = [123, 456];
+        const fetcherMock = sinon.stub().returns([Promise.resolve(), Promise.resolve()]);
+        const parserMock = sinon.stub().returns(Promise.resolve());
+        const dbPushMock = sinon.stub()
+                               .onFirstCall()
+                               .returns(Promise.resolve({offerIds: [], newOffers: [], priceUpdates: [123]}))
+                               .onSecondCall()
+                               .returns(Promise.resolve({offerIds: [], newOffers: [], priceUpdates: [456]}));
+        await createGrabber(fetcherMock, parserMock, dbPushMock);
+
+        assert.ok(config.notifierMock.calledWith([], expectedPriceUpdates));
     });
 });
