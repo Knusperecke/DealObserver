@@ -19,7 +19,7 @@ function addNewItem(promiseQuery, item, modelId, permanent) {
             Logger.log(`Added new history item id=${historyId}`);
             return promiseQuery(`INSERT INTO current (historyId) VALUES (${historyId})`).then(() => {
                 Logger.log(`Added item to current`);
-                return {item, isNew: true, newPrice: item.price};
+                return {item, isNew: true, newPrice: item.price, offerId: historyId};
             });
         });
 }
@@ -39,7 +39,7 @@ function updateExistingOffer(promiseQuery, item, modelId, historyId) {
                        `WHERE historyId=${historyId}\n`)
                 .then(() => {
                     Logger.log(`Updated item historyId=${historyId}`);
-                    return {item, isNew: false, oldPrice: oldPrice, newPrice: item.price};
+                    return {item, isNew: false, oldPrice: oldPrice, newPrice: item.price, offerId: historyId};
                 });
         });
 }
@@ -83,26 +83,29 @@ function pushItem(promiseQuery, item) {
 }
 
 function push(promiseQuery, items) {
-    return Promise
-        .all(items.map((item) => {
-            return pushItem(promiseQuery, item);
-        }))
-        .then((updates) => {
-            const newOffers = [];
-            const priceUpdates = [];
+    const newOffers = [];
+    const priceUpdates = [];
+    const offerIds = [];
 
-            updates.forEach((update) => {
-                if (update.isNew) {
-                    newOffers.push(update.item);
-                }
+    let promise = Promise.resolve();
 
-                if (update.oldPrice && update.oldPrice != update.newPrice) {
-                    priceUpdates.push(update);
-                }
-            });
+    items.forEach((item) => {
+        promise = promise.then(() => pushItem(promiseQuery, item)).then((update) => {
+            if (update.isNew) {
+                newOffers.push(update.item);
+            }
 
-            return {newOffers, priceUpdates};
+            if (update.oldPrice && update.oldPrice != update.newPrice) {
+                priceUpdates.push(update);
+            }
+
+            offerIds.push(update.offerId)
         });
+    });
+
+    return promise.then(() => {
+        return {newOffers, priceUpdates, offerIds};
+    });
 }
 
 module.exports = push;

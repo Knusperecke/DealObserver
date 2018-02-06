@@ -4,6 +4,7 @@ const MySql = require('mysql');
 const EnsureDatabaseSetup = require('./setup');
 const Query = require('./query');
 const Push = require('./push');
+const UpdateCurrent = require('./updateCurrent');
 const Logger = require('../util/logger');
 
 function close(connection, callback) {
@@ -37,6 +38,7 @@ function connect(host, user, password, databaseName, dropTables = false) {
     };
 
     db.push = Push.bind(this, db.promiseQuery);
+    db.updateCurrent = UpdateCurrent.bind(this, db.promiseQuery);
 
     EnsureDatabaseSetup(db, dropTables);
 

@@ -188,6 +188,7 @@ describe('Database', () => {
             assert.isObject(updates);
             assert.deepEqual(updates.priceUpdates.length, 0);
             assert.deepEqual(updates.newOffers.length, 0);
+            assert.deepEqual(updates.offerIds.length, 0);
         });
         await new Promise((resolve) => db.close(resolve));
     });
@@ -200,6 +201,7 @@ describe('Database', () => {
             assert.deepEqual(updates.priceUpdates.length, 0);
             assert.deepEqual(updates.newOffers.length, 1);
             assert.deepEqual(updates.newOffers[0], newOutletItem);
+            assert.deepEqual(updates.offerIds.length, 1);
         });
 
         await new Promise((resolve) => db.close(resolve));
@@ -299,7 +301,34 @@ describe('Database', () => {
             assert.deepEqual(updates.newOffers.length, 2);
             assert.deepEqual(updates.newOffers[0], newOutletItem);
             assert.deepEqual(updates.newOffers[1], newPermanentItem);
+            assert.deepEqual(updates.offerIds.length, 2);
         });
+
+        await new Promise((resolve) => db.close(resolve));
+    });
+
+    it('"updateCurrent" with empty array must empty the "current" table', async () => {
+        const db = createDatabase();
+
+        await db.updateCurrent([]).then(async () => {
+            await db.promiseQuery('SELECT COUNT(historyId) AS count FROM current').then((results) => {
+                assert.deepEqual(results[0].count, 0);
+            });
+        });
+
+        await new Promise((resolve) => db.close(resolve));
+    });
+
+    it('"updateCurrent" must handle offerIds returned by "push"', async () => {
+        const db = createDatabase();
+
+        await db.push([newOutletItem, newPermanentItem])
+            .then((updates) => db.updateCurrent(updates.offerIds))
+            .then(async () => {
+                await db.promiseQuery('SELECT COUNT(historyId) AS count FROM current').then((results) => {
+                    assert.deepEqual(results[0].count, 2);
+                });
+            });
 
         await new Promise((resolve) => db.close(resolve));
     });
