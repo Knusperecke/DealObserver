@@ -66,6 +66,7 @@ function pushItem(promiseQuery, item) {
                        `FROM current\n` +
                        `INNER JOIN history ON current.historyId=history.historyId\n` +
                        `WHERE history.modelId=${modelId}\n` +
+                       `  AND history.isPermanent=${permanent}\n` +
                        `  AND (history.isPermanent=1 OR history.price=${item.price})\n` +
                        `  AND history.itemCondition='${item.condition}'\n` +
                        `  AND history.size='${item.size}'`)
