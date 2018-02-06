@@ -50,7 +50,9 @@ describe('Canyon parser', () => {
             offerId: '000000000000111695',
             size: '|XL|',
             modelYear: '2017',
-            permanent: false
+            permanent: false,
+            url: 'https://www.canyon.com/img/outlet/22677_img_res.png',
+            condition: 'NewCondition'
         };
 
         assert.deepEqual(Parser({type: 'outlet', data: input}), [expectedItem]);
@@ -94,7 +96,9 @@ describe('Canyon parser', () => {
             offerId: '000000000000001810',
             size: '*',
             modelYear: '2018',
-            permanent: true
+            permanent: true,
+            url: 'https://static.canyon.com/_img/bikes/2018/aeroad-cf-slx-disc-9-ltd_c1105.png',
+            condition: 'NewCondition'
         };
 
         assert.deepEqual(Parser({type: 'normalOffer', data: input}), [expectedItem]);

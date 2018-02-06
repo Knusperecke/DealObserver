@@ -8,18 +8,24 @@ function parseForTargets(targets, htmlBlob) {
         results[targetName] = [];
     });
 
-    targets.forEach(({name, regexp}) => {
+    targets.forEach(({name, regexp, keepSlashes}) => {
         let names = htmlBlob.match(new RegExp(regexp + '["|/]?[^"/]*["|/]', 'g')) || [];
         names = names.filter((name) => !name.includes('"Canyon"'));
         names = names.map((hit) => {
-            return hit.replace(regexp, '').replace(/"/g, '').replace(/[/]/g, '').trim();
+            let temp = hit.replace(regexp, '').replace(/"/g, '');
+
+            if (!keepSlashes) {
+                temp = temp.replace(/[/]/g, '');
+            }
+
+            return temp.trim();
         });
         results[name] = results[name].concat(names);
     });
 
     const firstTarget = targets[0].name;
 
-    Logger.log('Filtered canyon data ', firstTarget.name, '.length=', results[firstTarget].length);
+    Logger.log(`Filtered canyon data: ${firstTarget}.length=${results[firstTarget].length}`);
 
     const targetLength = results[firstTarget].length;
     targets.forEach(({name: targetName}) => {
@@ -36,7 +42,9 @@ function parseForTargets(targets, htmlBlob) {
 function processOutletData(htmlBlob) {
     const targets = [
         {name: 'names', regexp: '"name": '}, {name: 'prices', regexp: '"price": '}, {name: 'skus', regexp: '"sku": '},
-        {name: 'sizes', regexp: 'data-size='}, {name: 'years', regexp: 'data-year='}
+        {name: 'sizes', regexp: 'data-size='}, {name: 'years', regexp: 'data-year='},
+        {name: 'conditions', regexp: 'itemCondition": "http://schema.org'},
+        {name: 'urls', regexp: '"image": "[^"]*"', keepSlashes: true}
     ];
 
     const results = parseForTargets(targets, htmlBlob);
@@ -55,7 +63,10 @@ function processOutletData(htmlBlob) {
             offerId: results.skus[index],
             size: results.sizes[index],
             modelYear: results.years[index],
-            permanent: false
+            permanent: false,
+            condition: results.conditions[index],
+            url: 'https://www.canyon.com' +
+                results.urls[index].replace('image: ', '').replace('\n', '').replace(',', '').trim()
         });
     });
 
@@ -66,7 +77,7 @@ function processOutletData(htmlBlob) {
 function processNormalOffer(htmlBlob) {
     const targets = [
         {name: 'names', regexp: '"name": '}, {name: 'prices', regexp: '"price": '}, {name: 'skus', regexp: '"sku": '},
-        {name: 'years', regexp: '_img/bikes'}
+        {name: 'years', regexp: '_img/bikes'}, {name: 'urls', regexp: '"image": "[^"]*"', keepSlashes: true}
     ];
 
     const results = parseForTargets(targets, htmlBlob);
@@ -85,7 +96,9 @@ function processNormalOffer(htmlBlob) {
             offerId: results.skus[index],
             size: '*',
             modelYear: results.years[index],
-            permanent: true
+            permanent: true,
+            condition: 'NewCondition',
+            url: results.urls[index].replace('image: ', '').replace('\n', '').replace(',', '').trim()
         });
     });
 
