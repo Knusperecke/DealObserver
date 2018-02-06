@@ -2,10 +2,20 @@
 
 const Logger = require('../util/logger');
 
-function setup(db) {
+function dropTables(db) {
+    ['models', 'current', 'history'].forEach((name) => {
+        db.query(`DROP TABLE ${name}`);
+    });
+}
+
+function setup(db, wantsDropTables) {
+    if (wantsDropTables) {
+        dropTables(db);
+    }
+
     db.query(
         'CREATE TABLE IF NOT EXISTS models (' +
-        'modelId INT NOT NULL,' +
+        'modelId INT NOT NULL AUTO_INCREMENT,' +
         'name VARCHAR(255) NOT NULL,' +
         'modelYear INT,' +
         'UNIQUE (modelId)' +
@@ -18,7 +28,7 @@ function setup(db) {
 
     db.query(
         'CREATE TABLE IF NOT EXISTS history (\n' +
-            'historyId INT NOT NULL,\n' +
+            'historyId INT NOT NULL AUTO_INCREMENT,\n' +
             'modelId INT NOT NULL,\n' +
             'itemCondition VARCHAR(255),\n' +
             'isPermanent TINYINT,\n' +

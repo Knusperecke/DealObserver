@@ -2,10 +2,10 @@
 
 const Logger = require('../util/logger');
 
-function query(connection, query, callback) {
-    connection.query(query, function(error, results) {
+function query(connection, queryBody, callback) {
+    connection.query(queryBody, function(error, results) {
         if (error) {
-            throw new Error(`Failed in query="${query}" with error="${error}"`);
+            throw new Error(`Failed in query="${queryBody}" with error="${error}"`);
         }
         Logger.log('Query successful');
 
@@ -15,4 +15,13 @@ function query(connection, query, callback) {
     });
 }
 
-module.exports = query;
+function promiseQuery(connection, queryBody) {
+    return new Promise((resolve) => {
+        query(connection, queryBody, resolve);
+    });
+}
+
+module.exports = {
+    query,
+    promiseQuery
+};

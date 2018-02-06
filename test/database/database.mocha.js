@@ -5,29 +5,36 @@ const assert = require('chai').assert;
 
 describe('Database', () => {
     function createDatabase() {
-        return Database('localhost', 'root', 'PinkiePie', 'test');
+        return Database('localhost', 'root', 'PinkiePie', 'test', true);
     }
 
-    it('Provides a function to connect', () => {
+    it('Provides a function to connect', (done) => {
         assert.isFunction(Database);
+        done();
     });
 
-    it('Returns an object', () => {
+    it('Returns an object', (done) => {
         const db = createDatabase();
         assert.isObject(db);
-        db.close();
+        db.close(done);
     });
 
-    it('Returns an object with a "query" function', () => {
+    it('Returns an object with a "query" function', (done) => {
         const db = createDatabase();
         assert.isFunction(db.query)
-        db.close();
+        db.close(done);
     });
 
-    it('Returns an object with a "close" function', () => {
+    it('Returns an object with a "promiseQuery" function', (done) => {
+        const db = createDatabase();
+        assert.isFunction(db.promiseQuery)
+        db.close(done);
+    });
+
+    it('Returns an object with a "close" function', (done) => {
         const db = createDatabase();
         assert.isFunction(db.close)
-        db.close();
+        db.close(done);
     });
 
     it('Can close a newly created connection', async () => {
@@ -39,8 +46,6 @@ describe('Database', () => {
                 resolve();
             });
         });
-
-        db.close();
     });
 
     it('Query function supports a simple query', async () => {
@@ -53,7 +58,17 @@ describe('Database', () => {
             });
         });
 
-        db.close();
+        await new Promise((resolve) => db.close(resolve));
+    });
+
+    it('promiseQuery supports a simple query', async () => {
+        const db = createDatabase();
+
+        await db.promiseQuery('SELECT 1 + 1 AS solution').then((results) => {
+            assert.deepEqual(results[0].solution, 2);
+        });
+
+        await new Promise((resolve) => db.close(resolve));
     });
 
     ['models', 'current', 'history'].forEach((name) => {
@@ -67,30 +82,30 @@ describe('Database', () => {
                 });
             });
 
-            db.close();
+            await new Promise((resolve) => db.close(resolve));
         });
     });
 
-    it('Returns an object with a "push" function', () => {
+    it('Returns an object with a "push" function', (done) => {
         const db = createDatabase();
         assert.isFunction(db.push)
-        db.close();
+        db.close(done);
     });
 
     it('"push" function accepts an empty array', async () => {
         const db = createDatabase();
         await db.push([]).then(() => assert.ok(true));
-        db.close();
+        await new Promise((resolve) => db.close(resolve));
     });
 
     it('"push" function returns a promise that provides an object', async () => {
         const db = createDatabase();
         await db.push([]).then((updates) => {
             assert.isObject(updates);
-            assert.deepEqual(updates.priceUpdats.length, 0);
+            assert.deepEqual(updates.priceUpdates.length, 0);
             assert.deepEqual(updates.newOffers.length, 0);
         });
-        db.close();
+        await new Promise((resolve) => db.close(resolve));
     });
 
     it('"push" function handles a new item', async () => {
@@ -110,10 +125,11 @@ describe('Database', () => {
 
         await db.push([newItem]).then((updates) => {
             assert.isObject(updates);
-            assert.deepEqual(updates.priceUpdats.length, 1);
-            assert.deepEqual(updates.priceUpdats[0], newItem);
-            assert.deepEqual(updates.newOffers.length, 0);
+            assert.deepEqual(updates.priceUpdates.length, 0);
+            assert.deepEqual(updates.newOffers.length, 1);
+            assert.deepEqual(updates.newOffers[0], newItem);
         });
-        db.close();
+
+        await new Promise((resolve) => db.close(resolve));
     });
 });

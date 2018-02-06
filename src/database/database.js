@@ -19,8 +19,9 @@ function close(connection, callback) {
     });
 }
 
-function connect(host, user, password, databaseName) {
-    const connection = MySql.createConnection({host: host, user: user, password: password, database: databaseName});
+function connect(host, user, password, databaseName, dropTables = false) {
+    const connection = MySql.createConnection(
+        {host: host, user: user, password: password, database: databaseName, multipleStatements: true});
     connection.connect((error) => {
         if (error) {
             throw new Error('Failed in database connection: ' + error);
@@ -30,12 +31,14 @@ function connect(host, user, password, databaseName) {
     });
 
     const db = {
-        query: Query.bind(this, connection),
+        query: Query.query.bind(this, connection),
+        promiseQuery: Query.promiseQuery.bind(this, connection),
         close: close.bind(this, connection),
-        push: Push.bind(this, connection)
     };
 
-    EnsureDatabaseSetup(db);
+    db.push = Push.bind(this, db.promiseQuery);
+
+    EnsureDatabaseSetup(db, dropTables);
 
     return db;
 }
