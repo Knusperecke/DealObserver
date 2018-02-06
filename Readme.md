@@ -1,9 +1,5 @@
 # Canyon Grabber: A Tool to Observe Deals 
 
-## Current ToDo
-- Database => tests => drop tables 
-- Database => implement push.js
-
 ## Installation 
 
 Preqs:
