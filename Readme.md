@@ -1,5 +1,11 @@
 # Canyon Grabber: A Tool to Observe Deals 
 
+## TODO
+* Introduce a config file for:
+   * Database config
+   * Webhooks
+   * Potentially also for the urls to fetch from
+
 ## Installation 
 
 Preqs:

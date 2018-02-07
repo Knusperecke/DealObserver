@@ -18,4 +18,26 @@ function get(url, requestImpl = new XMLHttpRequest()) {
     });
 }
 
-module.exports = {get};
+function post(url, body, requestImpl = new XMLHttpRequest()) {
+    return new Promise((resolve, reject) => {
+        requestImpl.onreadystatechange = function() {
+            if (requestImpl.readyState == 4) {
+                if (requestImpl.status == 200) {
+                    resolve(requestImpl.responseText);
+
+                } else {
+                    reject(new Error('Failed with status ' + requestImpl.status));
+                }
+            }
+        };
+
+        requestImpl.open('POST', url, true);
+        requestImpl.setRequestHeader('Content-type', 'application/json');
+        requestImpl.send(body);
+    });
+}
+
+module.exports = {
+    get,
+    post
+};
