@@ -38,6 +38,7 @@ function setup(db, wantsDropTables) {
             'durationTo DATETIME,\n' +
             'lastSellerId VARCHAR(255) NOT NULL,\n' +
             'lastUrl VARCHAR(255),\n' +
+            'lastSmallImgUrl VARCHAR(255),\n' +
             'UNIQUE (historyId)\n' +
             ')',
         () => Logger.log('Ensured database setup'));

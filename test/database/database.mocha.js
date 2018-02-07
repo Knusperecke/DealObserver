@@ -12,6 +12,7 @@ const newOutletItem = {
     modelYear: '2017',
     permanent: false,
     url: 'someUrl',
+    smallImgUrl: 'someOtherUrl',
     condition: 'new'
 };
 
@@ -24,6 +25,7 @@ const newOutletItemDifferentSize = {
     modelYear: '2017',
     permanent: false,
     url: 'someUrl',
+    smallImgUrl: 'someOtherUrl',
     condition: 'new'
 };
 
@@ -36,6 +38,7 @@ const newOutletItemDifferentCondition = {
     modelYear: '2017',
     permanent: false,
     url: 'someUrl',
+    smallImgUrl: 'someOtherUrl',
     condition: 'used'
 };
 
@@ -48,6 +51,7 @@ const newOutletItemDifferentPrice = {
     modelYear: '2017',
     permanent: false,
     url: 'someUrl',
+    smallImgUrl: 'someOtherUrl',
     condition: 'used'
 };
 
@@ -60,6 +64,7 @@ const newPermanentItem = {
     modelYear: '2017',
     permanent: true,
     url: 'someUrl',
+    smallImgUrl: 'someOtherUrl',
     condition: 'new'
 };
 
@@ -72,6 +77,7 @@ const newPermanentItemUpdatedPrice = {
     modelYear: '2017',
     permanent: true,
     url: 'someUrl',
+    smallImgUrl: 'someOtherUrl',
     condition: 'new'
 };
 

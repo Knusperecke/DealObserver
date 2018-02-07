@@ -41,7 +41,8 @@ describe('Canyon parser', () => {
             '                , "availability": "http://schema.org/InStock"             }\n' +
             '        }\n' +
             '        ... data-size="|XL|" ...\n' +
-            '        ... data-year="2017" ...';
+            '        ... data-year="2017" ...\n' +
+            '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="Speedmax CF SLX 9.0 LTD" class="img-responsive" width="1199" height="799" sizes="(min-width: 1202px) 599px, (min-width: 768px) 383px, 100vw" srcset="https://static.canyon.com/img/cache/62/6/56dfdff4841ee1c5a20c635b355cb.jpg 1199w, https://static.canyon.com/img/cache/f6/8/5caed2ec67f1ae27ea78e76e6df0f.jpg 767w, https://static.canyon.com/img/cache/d9/4/950ae18f813b15648ed8a4095bc2f.jpg 599w, https://static.canyon.com/img/cache/91/9/63a775e76c7e28537878056bc68a0.jpg 480w, https://static.canyon.com/img/cache/0f/2/e0af8e94f46bed7784dfc9c14e244.jpg 383w, https://static.canyon.com/img/cache/00/3/c35fded1512a127b75ecec7512b54.jpg 240w" style="opacity: 1;">';
 
         const expectedItem = {
             name: 'Speedmax CF 9.0 2017',
@@ -52,6 +53,7 @@ describe('Canyon parser', () => {
             modelYear: '2017',
             permanent: false,
             url: 'https://www.canyon.com/img/outlet/22677_img_res.png',
+            smallImgUrl: 'https://static.canyon.com/img/cache/f6/8/5caed2ec67f1ae27ea78e76e6df0f.jpg',
             condition: 'NewCondition'
         };
 
@@ -87,7 +89,10 @@ describe('Canyon parser', () => {
             '                    , "priceCurrency": "EUR"\n' +
             '                                , "itemCondition": "http://schema.org/NewCondition"\n' +
             '                , "availability": "http://schema.org/InStock"             }\n' +
-            '        }';
+            '        }\n' +
+            '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="Ultimate CF SLX Disc 9.0 Di2" class="img-responsive" width="1199" height="799" sizes="(min-width: 1202px) 599px, (min-width: 768px) 383px, 100vw" srcset="https://static.canyon.com/img/cache/75/5/307bfc1c636bdd639ed79f5013185.jpg 1199w, https://static.canyon.com/img/cache/d4/9/aa4f663dac3837dc54dafdc850467.jpg 767w, https://static.canyon.com/img/cache/80/a/0a21baa6d85d96e153fdedba7fc56.jpg 599w, https://static.canyon.com/img/cache/0d/b/800d6d729db7e6e3175f88a845af9.jpg 480w, https://static.canyon.com/img/cache/1a/e/f0a9c8667ee6f50a14a2c82c12a25.jpg 383w, https://static.canyon.com/img/cache/1a/1/fcab75e7326bc2ed51ad9203e830c.jpg 240w" style="opacity: 1;">\n' +
+            '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="road teaser sportprogeometrie" class="img-responsive" width="1199" height="799" sizes="(min-width: 1202px) 599px, (min-width: 768px) 383px, 100vw" srcset="https://static.canyon.com/img/cache/c4/a/b8ebdef98a8c93edd80c7da7e9ecd.jpg 1199w, https://static.canyon.com/img/cache/df/d/02dd72b2831c776f8f84c68246e0a.jpg 767w, https://static.canyon.com/img/cache/1c/5/02aa3d9921b2b6df3a62e6d36579b.jpg 599w, https://static.canyon.com/img/cache/9f/6/db09ec659cf4c615fb1bde7977057.jpg 480w, https://static.canyon.com/img/cache/d0/8/9c0ad52147ef3c81ff2aa5ade2e47.jpg 383w, https://static.canyon.com/img/cache/37/7/e2599bfe3c3e1ff8a6524ec7aecaa.jpg 240w" style="opacity: 1;">\n' +
+            '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="slideshow ultimate cf sl 3" class="img-responsive" width="1199" height="799" sizes="(min-width: 1202px) 1199px, (min-width: 768px) 767px, 100vw" srcset="https://static.canyon.com/img/cache/1d/a/ee9f580d5a7091a38e1bd94dedc16.jpg 1199w, https://static.canyon.com/img/cache/22/6/63a3a2d9ad7ae01de933acac57efa.jpg 767w, https://static.canyon.com/img/cache/44/8/00aa4f2e62f4c23f7c0d9aeb1f2be.jpg 480w, https://static.canyon.com/img/cache/1b/6/70ece7ce62877aadba464080769e1.jpg 240w" style="opacity: 1;">';
 
         const expectedItem = {
             name: 'Aeroad CF SLX Disc 9.0 LTD 2018',
@@ -98,6 +103,7 @@ describe('Canyon parser', () => {
             modelYear: '2018',
             permanent: true,
             url: 'https://static.canyon.com/_img/bikes/2018/aeroad-cf-slx-disc-9-ltd_c1105.png',
+            smallImgUrl: 'https://static.canyon.com/img/cache/d4/9/aa4f663dac3837dc54dafdc850467.jpg',
             condition: 'NewCondition'
         };
 

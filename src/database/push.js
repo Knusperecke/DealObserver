@@ -10,9 +10,9 @@ function addNewItem(promiseQuery, item, modelId, permanent) {
     const dateTime = getSqlDateTime();
     return promiseQuery(
                `INSERT INTO history (modelId, itemCondition, isPermanent, size, price, durationFrom, durationTo,` +
-               `                     lastSellerId, lastUrl)\n` +
+               `                     lastSellerId, lastUrl, lastSmallImgUrl)\n` +
                `  VALUES(${modelId}, '${item.condition}', ${permanent}, '${item.size}', ${item.price}, ` +
-               `         '${dateTime}', '${dateTime}', '${item.offerId}', '${item.url}');\n` +
+               `         '${dateTime}', '${dateTime}', '${item.offerId}', '${item.url}', '${item.smallImgUrl}');\n` +
                'SELECT LAST_INSERT_ID() AS id')
         .then((insertQueryResult) => {
             const historyId = insertQueryResult[1][0].id;
@@ -35,7 +35,7 @@ function updateExistingOffer(promiseQuery, item, modelId, historyId) {
             return promiseQuery(
                        `UPDATE history\n` +
                        `SET durationTo='${currentDateTime}', lastSellerId='${item.offerId}', lastUrl='${item.url}',` +
-                       `    price=${item.price}\n` +
+                       `    price=${item.price}, lastSmallImgUrl='${item.smallImgUrl}'\n` +
                        `WHERE historyId=${historyId}\n`)
                 .then(() => {
                     Logger.log(`Updated item historyId=${historyId}`);
