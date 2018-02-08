@@ -32,12 +32,7 @@ function parseForTargets(targets, htmlBlob) {
         if (results[targetName].length !== targetLength) {
             const message = `Failed parsing outlet data ${firstTarget}.length=${targetLength} ${targetName}.length=${
                 results[targetName].length}`;
-            if (results[targetName].length > targetLength) {
-                results[targetName] = results[targetName].slice(0, targetLength - 1);
-                Logger.warn('Had to truncate result array, check parser! ' + message)
-            } else {
-                throw new Error(message);
-            }
+            throw new Error(message);
         }
     });
 
@@ -81,16 +76,31 @@ function processOutletData(htmlBlob) {
     return returnValue;
 }
 
+function parseForSmallImgUrls(htmlBlob) {
+    const singleLineBlob = htmlBlob.replace(/[\r]?\n/g, ' ');
+    const offerSections = singleLineBlob.split(/"image": "/g).slice(1);
+    const smallImgUrls = offerSections.map((section) => {
+        const parseForSmallImgResult = parseForTargets(
+            [{name: 'smallImgUrls', regexp: '1199w, ', keepSlashes: true, matchWhat: '[^ ]', endDelimiter: '[ ]'}],
+            section);
+        const smallImgUrls = parseForSmallImgResult.smallImgUrls;
+        if (smallImgUrls.length < 1) {
+            throw new Error(`Could not find small img in section`);
+        }
+        return smallImgUrls[0];
+    });
+
+    return smallImgUrls;
+}
+
 function processNormalOffer(htmlBlob) {
     const targets = [
         {name: 'names', regexp: '"name": '}, {name: 'prices', regexp: '"price": '}, {name: 'skus', regexp: '"sku": '},
         {name: 'years', regexp: '_img/bikes'}, {name: 'urls', regexp: '"image": "[^"]*"', keepSlashes: true},
-        {name: 'smallImgUrls', regexp: '1199w, ', keepSlashes: true, matchWhat: '[^ ]', endDelimiter: '[ ]'}
     ];
 
-    htmlBlob = htmlBlob.replace(/.*sportprogeometrie.*/g, '').replace(/.*slideshow.*/g, '');
-
     const results = parseForTargets(targets, htmlBlob);
+    const smallImgUrls = parseForSmallImgUrls(htmlBlob);
 
     const returnValue = [];
     results.names.forEach((name, index) => {
@@ -109,7 +119,7 @@ function processNormalOffer(htmlBlob) {
             permanent: true,
             condition: 'NewCondition',
             url: results.urls[index].replace('image: ', '').replace('\n', '').replace(',', '').trim(),
-            smallImgUrl: results.smallImgUrls[index]
+            smallImgUrl: smallImgUrls[index]
         });
     });
 
