@@ -46,9 +46,9 @@ const priceUpdateMoreExpensive = {
 describe('Notifier', () => {
     let httpPostMock;
 
-    function createNotifier(newOffers, priceUpdates) {
+    function createNotifier(newOffers, priceUpdates, soldOutItems) {
         httpPostMock = sinon.stub().returns(Promise.resolve());
-        return Notifier(newOffers, priceUpdates, httpPostMock);
+        return Notifier(newOffers, priceUpdates, soldOutItems, httpPostMock);
     }
 
     it('Exports a function', () => {
@@ -56,58 +56,86 @@ describe('Notifier', () => {
     });
 
     it('Returns a promise', async () => {
-        await Notifier([], []).then(() => {
+        await Notifier([], [], []).then(() => {
             assert.isOk(true);
         });
     });
 
     describe('Posts news', () => {
         it('Handles a new offer by posting a news message', async () => {
-            await createNotifier([item], []).then(() => {
+            await createNotifier([item], [], []).then(() => {
                 assert.isOk(httpPostMock.calledWith(config.slack.newsWebHook));
             });
         });
 
         it('Handles two new offers by posting a news message (with plural s)', async () => {
-            await createNotifier([item, item], []).then(() => {
+            await createNotifier([item, item], [], []).then(() => {
                 assert.isOk(httpPostMock.calledWith(config.slack.newsWebHook));
             });
         });
 
         it('Handles a new price by posting a news message', async () => {
-            await createNotifier([], [priceUpdate]).then(() => {
+            await createNotifier([], [priceUpdate], []).then(() => {
                 assert.isOk(httpPostMock.calledWith(config.slack.newsWebHook));
             });
         });
 
         it('Handles two new prices by posting a news message (with plural s)', async () => {
-            await createNotifier([], [priceUpdate, priceUpdate]).then(() => {
+            await createNotifier([], [priceUpdate, priceUpdate], []).then(() => {
                 assert.isOk(httpPostMock.calledWith(config.slack.newsWebHook));
             });
         });
 
-        it('Handles a new offer and a price update by posting a news message (with an and in between)', async () => {
-            await createNotifier([item], [priceUpdate]).then(() => {
+        it('Handles a new offer and a price update by posting a news message (with an "and" in between)', async () => {
+            await createNotifier([item], [priceUpdate], []).then(() => {
                 assert.isOk(httpPostMock.calledWith(config.slack.newsWebHook));
+            });
+        });
+
+        it('Handles a new offer, a price update, and a sold out item by posting a news message (with a "," and an "and" in between)',
+           async () => {
+               await createNotifier([item], [priceUpdate], [item]).then(() => {
+                   assert.isOk(httpPostMock.calledWith(config.slack.newsWebHook));
+               });
+           });
+    });
+
+    describe('Posts sold out items', () => {
+        it('Handles a sold out item by posting into the newOffers channel', async () => {
+            await createNotifier([], [], [item]).then(() => {
+                assert.isOk(httpPostMock.calledWith(config.slack.newOffersWebHook));
+            });
+        });
+
+        it('Handles a sold out item by posting into the newOffers channel (special formatting for unique items)',
+           async () => {
+               await createNotifier([], [], [uniqueItem]).then(() => {
+                   assert.isOk(httpPostMock.calledWith(config.slack.newOffersWebHook));
+               });
+           });
+
+        it('Handles multiple sold out items by posting multiple times into the newOffers channel', async () => {
+            await createNotifier([], [], [item, item]).then(() => {
+                assert.isOk(httpPostMock.withArgs(config.slack.newOffersWebHook).calledTwice);
             });
         });
     });
 
     describe('Posts new offers', () => {
         it('Handles a new offer by posting a new offer message', async () => {
-            await createNotifier([item], []).then(() => {
+            await createNotifier([item], [], []).then(() => {
                 assert.isOk(httpPostMock.calledWith(config.slack.newOffersWebHook));
             });
         });
 
         it('Handles a new offer by posting a new offer message (special formatting for unique items)', async () => {
-            await createNotifier([uniqueItem], []).then(() => {
+            await createNotifier([uniqueItem], [], []).then(() => {
                 assert.isOk(httpPostMock.calledWith(config.slack.newOffersWebHook));
             });
         });
 
         it('Handles multiple new offer by posting a new offer message for each new offer', async () => {
-            await createNotifier([item, item], []).then(() => {
+            await createNotifier([item, item], [], []).then(() => {
                 assert.isOk(httpPostMock.withArgs(config.slack.newOffersWebHook).calledTwice);
             });
         });
@@ -115,20 +143,20 @@ describe('Notifier', () => {
 
     describe('Posts price updates', () => {
         it('Handles a price update by posting a price update message', async () => {
-            await createNotifier([], [priceUpdate]).then(() => {
+            await createNotifier([], [priceUpdate], []).then(() => {
                 assert.isOk(httpPostMock.calledWith(config.slack.priceUpdatesWebHook));
             });
         });
 
         it('Handles a price update by posting a price update message (special formatting for increased price)',
            async () => {
-               await createNotifier([], [priceUpdateMoreExpensive]).then(() => {
+               await createNotifier([], [priceUpdateMoreExpensive], []).then(() => {
                    assert.isOk(httpPostMock.calledWith(config.slack.priceUpdatesWebHook));
                });
            });
 
         it('Handles two price updates by posting two price update messages', async () => {
-            await createNotifier([], [priceUpdate, priceUpdate]).then(() => {
+            await createNotifier([], [priceUpdate, priceUpdate], []).then(() => {
                 assert.isOk(httpPostMock.withArgs(config.slack.priceUpdatesWebHook).calledTwice);
             });
         });

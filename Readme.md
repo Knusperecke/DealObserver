@@ -1,8 +1,6 @@
 # Canyon Grabber: A Tool to Observe Deals 
 
 ## TODO
-* List items that "disappeared" when doing database.updateCurrent
-   * Add them to the notifications!
 * Introduce a config file for:
    * Database config
    * Potentially also for the urls to fetch from

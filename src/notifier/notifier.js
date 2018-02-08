@@ -4,32 +4,41 @@ const XMLHttpRequestImpl = require('xmlhttprequest').XMLHttpRequest;
 const HttpHelper = require('../util/httpHelper');
 const config = require('../../config');
 
-function postNewsEntry(numNewOffers, numPriceUpdates, HttpPost) {
-    if (numNewOffers === 0 && numPriceUpdates === 0) {
+function addPluralS(count) {
+    return count > 1 ? 's' : '';
+}
+
+function sentenice(expressions) {
+    let ret = '';
+    expressions.forEach((expression, index) => {
+        ret = ret + expression;
+
+        if (index + 2 === expressions.length) {
+            ret = ret + ' and ';
+        } else if (index + 2 < expressions.length) {
+            ret = ret + ', ';
+        }
+    });
+    return ret;
+}
+
+function postNewsEntry(numNewOffers, numPriceUpdates, numSoldOutItems, HttpPost) {
+    if (numNewOffers === 0 && numPriceUpdates === 0 && numSoldOutItems === 0) {
         return Promise.resolve();
     }
 
-    let text = '*Update:* ';
-
+    const pieces = [];
     if (numNewOffers > 0) {
-        text = text + `*${numNewOffers}* new offer`;
-        if (numNewOffers > 1) {
-            text = text + `s `;
-        } else {
-            text = text + ` `;
-        }
+        pieces.push(`*${numNewOffers}* new offer${addPluralS(numNewOffers)}`);
     }
-
-    if (numNewOffers > 0 && numPriceUpdates > 0) {
-        text = text + 'and ';
-    }
-
     if (numPriceUpdates > 0) {
-        text = text + `*${numPriceUpdates}* updated price`;
-        if (numPriceUpdates > 1) {
-            text = text + `s`;
-        }
+        pieces.push(`*${numPriceUpdates}* updated price${addPluralS(numPriceUpdates)}`);
     }
+    if (numSoldOutItems > 0) {
+        pieces.push(`*${numSoldOutItems}* item${addPluralS(numSoldOutItems)} sold out`);
+    }
+
+    const text = '*Update:* ' + sentenice(pieces);
 
     return HttpPost(
         config.slack.newsWebHook, JSON.stringify({
@@ -39,6 +48,29 @@ function postNewsEntry(numNewOffers, numPriceUpdates, HttpPost) {
             icon_emoji: config.slack.notifierEmoji
         }),
         new XMLHttpRequestImpl());
+}
+
+function postSoldOutItems(soldOutItems, HttpPost) {
+    const promises = soldOutItems.map((item) => {
+        let attachmentText = `~${item.name}~ for ~${item.price} EUR~`;
+
+        if (item.permanent === false) {
+            attachmentText = attachmentText + ` size ${item.size} condition ${item.condition}`;
+        }
+
+        return HttpPost(
+            config.slack.newOffersWebHook, JSON.stringify({
+                channel: config.slack.newOffersChannelName,
+                username: config.slack.notifierUserName,
+                text: 'Sold out:',
+                icon_emoji: config.slack.soldOutEmoji,
+                attachments:
+                    [{color: '#FF8888', text: attachmentText, image_url: item.smallImgUrl, footer: '=> ' + item.url}]
+            }),
+            new XMLHttpRequestImpl());
+    });
+
+    return Promise.all(promises);
 }
 
 function postNewOffers(newOffers, HttpPost) {
@@ -96,8 +128,9 @@ function postPriceUpdates(priceUpdates, HttpPost) {
     return Promise.all(promises);
 }
 
-function notify(newOffers, priceUpdates, HttpPost = HttpHelper.post) {
-    return postNewsEntry(newOffers.length, priceUpdates.length, HttpPost)
+function notify(newOffers, priceUpdates, soldOutItems, HttpPost = HttpHelper.post) {
+    return postNewsEntry(newOffers.length, priceUpdates.length, soldOutItems.length, HttpPost)
+        .then(() => postSoldOutItems(soldOutItems, HttpPost))
         .then(() => postNewOffers(newOffers, HttpPost))
         .then(() => postPriceUpdates(priceUpdates, HttpPost));
 }
