@@ -11,6 +11,7 @@ function run(Database = DefaultDatabase, Fetcher = CanyonFetcher, Parser = Canyo
     let currentItemIds = [];
     let newItems = [];
     let priceUpdates = [];
+    let soldOutItems = [];
 
     return Promise
         .all(Fetcher().map((query) => {
@@ -23,8 +24,9 @@ function run(Database = DefaultDatabase, Fetcher = CanyonFetcher, Parser = Canyo
             });
         }))
         .then(() => db.updateCurrent(currentItemIds))
+        .then((soldOutItemsUpdate) => soldOutItems = soldOutItemsUpdate)
         .then(() => db.close())
-        .then(() => Notifier(newItems, priceUpdates));
+        .then(() => Notifier(newItems, priceUpdates, soldOutItems));
 }
 
 module.exports = run;

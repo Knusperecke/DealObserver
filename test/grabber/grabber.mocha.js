@@ -8,10 +8,11 @@ describe('Grabber', () => {
     let config = {};
     function createGrabber(
         fetcherMock = sinon.stub().returns([]), parserMock = sinon.stub().returns([]),
-        pushMock = sinon.stub().returns({offerIds: [], newOffers: [], priceUpdates: []})) {
+        pushMock = sinon.stub().returns({offerIds: [], newOffers: [], priceUpdates: []}),
+        updateCurrentMock = sinon.stub().returns([])) {
         config.closeDatabase = sinon.spy();
         config.push = pushMock;
-        config.updateCurrent = sinon.spy();
+        config.updateCurrent = updateCurrentMock;
         config.databaseMock =
             sinon.stub().returns({close: config.closeDatabase, push: config.push, updateCurrent: config.updateCurrent});
         config.fetcherMock = fetcherMock;
@@ -116,5 +117,29 @@ describe('Grabber', () => {
         await createGrabber(fetcherMock, parserMock, dbPushMock);
 
         assert.ok(config.notifierMock.calledWith([], expectedPriceUpdates));
+    });
+
+    it('Passes items that disappeared to notifier', async () => {
+        const expectedItem = 'item';
+
+        const fetcherMock = sinon.stub().returns([Promise.resolve()]);
+        const parserMock = sinon.stub().returns(Promise.resolve());
+        const dbPushMock = sinon.stub().returns(Promise.resolve({offerIds: [], newOffers: [], priceUpdates: []}));
+        const dbUpdateCurrentMock = sinon.stub().returns(Promise.resolve([expectedItem]));
+        await createGrabber(fetcherMock, parserMock, dbPushMock, dbUpdateCurrentMock);
+
+        assert.ok(config.notifierMock.calledWith([], [], [expectedItem]));
+    });
+
+    it('Passes multiple items that disappeared to notifier', async () => {
+        const expectedItems = ['item1', 'item2'];
+
+        const fetcherMock = sinon.stub().returns([Promise.resolve()]);
+        const parserMock = sinon.stub().returns(Promise.resolve());
+        const dbPushMock = sinon.stub().returns(Promise.resolve({offerIds: [], newOffers: [], priceUpdates: []}));
+        const dbUpdateCurrentMock = sinon.stub().returns(Promise.resolve(expectedItems));
+        await createGrabber(fetcherMock, parserMock, dbPushMock, dbUpdateCurrentMock);
+
+        assert.ok(config.notifierMock.calledWith([], [], expectedItems));
     });
 });
