@@ -86,256 +86,338 @@ describe('Database', () => {
         return Database('localhost', 'root', 'PinkiePie', 'test', dropTables);
     }
 
-    it('Provides a function to connect', (done) => {
-        assert.isFunction(Database);
-        done();
-    });
-
-    it('Returns an object', (done) => {
-        const db = createDatabase();
-        assert.isObject(db);
-        db.close(done);
-    });
-
-    it('Returns an object with a "query" function', (done) => {
-        const db = createDatabase();
-        assert.isFunction(db.query)
-        db.close(done);
-    });
-
-    it('Returns an object with a "promiseQuery" function', (done) => {
-        const db = createDatabase();
-        assert.isFunction(db.promiseQuery)
-        db.close(done);
-    });
-
-    it('Returns an object with a "close" function', (done) => {
-        const db = createDatabase();
-        assert.isFunction(db.close)
-        db.close(done);
-    });
-
-    it('Can close a newly created connection', async () => {
-        const db = createDatabase();
-
-        await new Promise((resolve) => {
-            db.close(function() {
-                assert.ok(true);
-                resolve();
-            });
-        });
-    });
-
-    it('Query function supports a simple query', async () => {
-        const db = createDatabase();
-
-        await new Promise((resolve) => {
-            db.query('SELECT 1 + 1 AS solution', function(results) {
-                assert.deepEqual(results[0].solution, 2);
-                resolve();
-            });
+    describe('Basic behaviour', () => {
+        it('Provides a function to connect', (done) => {
+            assert.isFunction(Database);
+            done();
         });
 
-        await new Promise((resolve) => db.close(resolve));
-    });
-
-    it('promiseQuery supports a simple query', async () => {
-        const db = createDatabase();
-
-        await db.promiseQuery('SELECT 1 + 1 AS solution').then((results) => {
-            assert.deepEqual(results[0].solution, 2);
+        it('Returns an object', (done) => {
+            const db = createDatabase();
+            assert.isObject(db);
+            db.close(done);
         });
 
-        await new Promise((resolve) => db.close(resolve));
-    });
-
-    it('Does not drops tables per default', async () => {
-        let db = createDatabase();
-        await db.promiseQuery('INSERT INTO current (historyId) VALUES (7)');
-        await new Promise((resolve) => db.close(resolve));
-
-        db = createDatabase(false);
-        await db.promiseQuery('SELECT historyId FROM current').then((results) => {
-            assert.deepEqual(results[0].historyId, 7);
+        it('Returns an object with a "query" function', (done) => {
+            const db = createDatabase();
+            assert.isFunction(db.query)
+            db.close(done);
         });
-        await new Promise((resolve) => db.close(resolve));
-    });
 
-    ['models', 'current', 'history'].forEach((name) => {
-        it(`Database has a table named ${name}`, async () => {
+        it('Returns an object with a "promiseQuery" function', (done) => {
+            const db = createDatabase();
+            assert.isFunction(db.promiseQuery)
+            db.close(done);
+        });
+
+        it('Returns an object with a "close" function', (done) => {
+            const db = createDatabase();
+            assert.isFunction(db.close)
+            db.close(done);
+        });
+
+        it('Can close a newly created connection', async () => {
             const db = createDatabase();
 
             await new Promise((resolve) => {
-                db.query(`SELECT * FROM ${name}`, function() {
+                db.close(function() {
                     assert.ok(true);
+                    resolve();
+                });
+            });
+        });
+    });
+
+    describe('Queries', () => {
+        it('Query function supports a simple query', async () => {
+            const db = createDatabase();
+
+            await new Promise((resolve) => {
+                db.query('SELECT 1 + 1 AS solution', function(results) {
+                    assert.deepEqual(results[0].solution, 2);
                     resolve();
                 });
             });
 
             await new Promise((resolve) => db.close(resolve));
         });
-    });
 
-    it('Returns an object with a "push" function', (done) => {
-        const db = createDatabase();
-        assert.isFunction(db.push)
-        db.close(done);
-    });
+        it('promiseQuery supports a simple query', async () => {
+            const db = createDatabase();
 
-    it('"push" function accepts an empty array', async () => {
-        const db = createDatabase();
-        await db.push([]).then(() => assert.ok(true));
-        await new Promise((resolve) => db.close(resolve));
-    });
+            await db.promiseQuery('SELECT 1 + 1 AS solution').then((results) => {
+                assert.deepEqual(results[0].solution, 2);
+            });
 
-    it('"push" function returns a promise that provides an object', async () => {
-        const db = createDatabase();
-        await db.push([]).then((updates) => {
-            assert.isObject(updates);
-            assert.deepEqual(updates.priceUpdates.length, 0);
-            assert.deepEqual(updates.newOffers.length, 0);
-            assert.deepEqual(updates.offerIds.length, 0);
+            await new Promise((resolve) => db.close(resolve));
         });
-        await new Promise((resolve) => db.close(resolve));
     });
 
-    it('"push" function handles a new item', async () => {
-        const db = createDatabase();
+    describe('Table structure', () => {
+        it('Does not drops tables per default', async () => {
+            let db = createDatabase();
+            await db.promiseQuery('INSERT INTO current (historyId) VALUES (7)');
+            await new Promise((resolve) => db.close(resolve));
 
-        await db.push([newOutletItem]).then((updates) => {
-            assert.isObject(updates);
-            assert.deepEqual(updates.priceUpdates.length, 0);
-            assert.deepEqual(updates.newOffers.length, 1);
-            assert.deepEqual(updates.newOffers[0], newOutletItem);
-            assert.deepEqual(updates.offerIds.length, 1);
+            db = createDatabase(false);
+            await db.promiseQuery('SELECT historyId FROM current').then((results) => {
+                assert.deepEqual(results[0].historyId, 7);
+            });
+            await new Promise((resolve) => db.close(resolve));
         });
 
-        await new Promise((resolve) => db.close(resolve));
-    });
+        ['models', 'current', 'history'].forEach((name) => {
+            it(`Database has a table named ${name}`, async () => {
+                const db = createDatabase();
 
-    it('"push" function detects known items', async () => {
-        const db = createDatabase();
+                await new Promise((resolve) => {
+                    db.query(`SELECT * FROM ${name}`, function() {
+                        assert.ok(true);
+                        resolve();
+                    });
+                });
 
-        await db.push([newOutletItem]);
-        await db.push([newOutletItem]).then((updates) => {
-            assert.isObject(updates);
-            assert.deepEqual(updates.priceUpdates.length, 0);
-            assert.deepEqual(updates.newOffers.length, 0);
-        });
-
-        await new Promise((resolve) => db.close(resolve));
-    });
-
-    it('"push" function discerns size of items', async () => {
-        const db = createDatabase();
-
-        await db.push([newOutletItem]);
-        await db.push([newOutletItemDifferentSize]).then((updates) => {
-            assert.isObject(updates);
-            assert.deepEqual(updates.priceUpdates.length, 0);
-            assert.deepEqual(updates.newOffers.length, 1);
-            assert.deepEqual(updates.newOffers[0], newOutletItemDifferentSize);
-        });
-
-        await new Promise((resolve) => db.close(resolve));
-    });
-
-    it('"push" function discerns condition of items', async () => {
-        const db = createDatabase();
-
-        await db.push([newOutletItem]);
-        await db.push([newOutletItemDifferentCondition]).then((updates) => {
-            assert.isObject(updates);
-            assert.deepEqual(updates.priceUpdates.length, 0);
-            assert.deepEqual(updates.newOffers.length, 1);
-            assert.deepEqual(updates.newOffers[0], newOutletItemDifferentCondition);
-        });
-
-        await new Promise((resolve) => db.close(resolve));
-    });
-
-    it('"push" function discerns price of items', async () => {
-        const db = createDatabase();
-
-        await db.push([newOutletItem]);
-        await db.push([newOutletItemDifferentPrice]).then((updates) => {
-            assert.isObject(updates);
-            assert.deepEqual(updates.priceUpdates.length, 0);
-            assert.deepEqual(updates.newOffers.length, 1);
-            assert.deepEqual(updates.newOffers[0], newOutletItemDifferentPrice);
-        });
-
-        await new Promise((resolve) => db.close(resolve));
-    });
-
-    it('"push" function discerns outlet items from permanent items', async () => {
-        const db = createDatabase();
-
-        await db.push([newOutletItem]);
-        await db.push([newPermanentItem]).then((updates) => {
-            assert.isObject(updates);
-            assert.deepEqual(updates.priceUpdates.length, 0);
-            assert.deepEqual(updates.newOffers.length, 1);
-            assert.deepEqual(updates.newOffers[0], newPermanentItem);
-        });
-
-        await new Promise((resolve) => db.close(resolve));
-    });
-
-    it('"push" function provides a price update for permanent items', async () => {
-        const db = createDatabase();
-
-        await db.push([newPermanentItem]);
-        await db.push([newPermanentItemUpdatedPrice]).then((updates) => {
-            assert.isObject(updates);
-            assert.deepEqual(updates.priceUpdates.length, 1);
-            assert.deepEqual(updates.priceUpdates[0].item, newPermanentItemUpdatedPrice);
-            assert.deepEqual(updates.priceUpdates[0].oldPrice, newPermanentItem.price);
-            assert.deepEqual(updates.priceUpdates[0].newPrice, newPermanentItemUpdatedPrice.price);
-            assert.deepEqual(updates.newOffers.length, 0);
-        });
-
-        await new Promise((resolve) => db.close(resolve));
-    });
-
-    it('"push" function handles multiple items at once', async () => {
-        const db = createDatabase();
-
-        await db.push([newOutletItem, newPermanentItem]).then((updates) => {
-            assert.isObject(updates);
-            assert.deepEqual(updates.priceUpdates.length, 0);
-            assert.deepEqual(updates.newOffers.length, 2);
-            assert.deepEqual(updates.newOffers[0], newOutletItem);
-            assert.deepEqual(updates.newOffers[1], newPermanentItem);
-            assert.deepEqual(updates.offerIds.length, 2);
-        });
-
-        await new Promise((resolve) => db.close(resolve));
-    });
-
-    it('"updateCurrent" with empty array must empty the "current" table', async () => {
-        const db = createDatabase();
-
-        await db.updateCurrent([]).then(async () => {
-            await db.promiseQuery('SELECT COUNT(historyId) AS count FROM current').then((results) => {
-                assert.deepEqual(results[0].count, 0);
+                await new Promise((resolve) => db.close(resolve));
             });
         });
-
-        await new Promise((resolve) => db.close(resolve));
     });
 
-    it('"updateCurrent" must handle offerIds returned by "push"', async () => {
-        const db = createDatabase();
+    describe('Push items', () => {
+        it('Returns an object with a "push" function', (done) => {
+            const db = createDatabase();
+            assert.isFunction(db.push)
+            db.close(done);
+        });
 
-        await db.push([newOutletItem, newPermanentItem])
-            .then((updates) => db.updateCurrent(updates.offerIds))
-            .then(async () => {
+        it('"push" function accepts an empty array', async () => {
+            const db = createDatabase();
+            await db.push([]).then(() => assert.ok(true));
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"push" function returns a promise that provides an object', async () => {
+            const db = createDatabase();
+            await db.push([]).then((updates) => {
+                assert.isObject(updates);
+                assert.deepEqual(updates.priceUpdates.length, 0);
+                assert.deepEqual(updates.newOffers.length, 0);
+                assert.deepEqual(updates.offerIds.length, 0);
+            });
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"push" function handles a new item', async () => {
+            const db = createDatabase();
+
+            await db.push([newOutletItem]).then((updates) => {
+                assert.isObject(updates);
+                assert.deepEqual(updates.priceUpdates.length, 0);
+                assert.deepEqual(updates.newOffers.length, 1);
+                assert.deepEqual(updates.newOffers[0], newOutletItem);
+                assert.deepEqual(updates.offerIds.length, 1);
+            });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"push" function detects known items', async () => {
+            const db = createDatabase();
+
+            await db.push([newOutletItem]);
+            await db.push([newOutletItem]).then((updates) => {
+                assert.isObject(updates);
+                assert.deepEqual(updates.priceUpdates.length, 0);
+                assert.deepEqual(updates.newOffers.length, 0);
+            });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"push" function discerns size of items', async () => {
+            const db = createDatabase();
+
+            await db.push([newOutletItem]);
+            await db.push([newOutletItemDifferentSize]).then((updates) => {
+                assert.isObject(updates);
+                assert.deepEqual(updates.priceUpdates.length, 0);
+                assert.deepEqual(updates.newOffers.length, 1);
+                assert.deepEqual(updates.newOffers[0], newOutletItemDifferentSize);
+            });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"push" function discerns condition of items', async () => {
+            const db = createDatabase();
+
+            await db.push([newOutletItem]);
+            await db.push([newOutletItemDifferentCondition]).then((updates) => {
+                assert.isObject(updates);
+                assert.deepEqual(updates.priceUpdates.length, 0);
+                assert.deepEqual(updates.newOffers.length, 1);
+                assert.deepEqual(updates.newOffers[0], newOutletItemDifferentCondition);
+            });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"push" function discerns price of items', async () => {
+            const db = createDatabase();
+
+            await db.push([newOutletItem]);
+            await db.push([newOutletItemDifferentPrice]).then((updates) => {
+                assert.isObject(updates);
+                assert.deepEqual(updates.priceUpdates.length, 0);
+                assert.deepEqual(updates.newOffers.length, 1);
+                assert.deepEqual(updates.newOffers[0], newOutletItemDifferentPrice);
+            });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"push" function discerns outlet items from permanent items', async () => {
+            const db = createDatabase();
+
+            await db.push([newOutletItem]);
+            await db.push([newPermanentItem]).then((updates) => {
+                assert.isObject(updates);
+                assert.deepEqual(updates.priceUpdates.length, 0);
+                assert.deepEqual(updates.newOffers.length, 1);
+                assert.deepEqual(updates.newOffers[0], newPermanentItem);
+            });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"push" function provides a price update for permanent items', async () => {
+            const db = createDatabase();
+
+            await db.push([newPermanentItem]);
+            await db.push([newPermanentItemUpdatedPrice]).then((updates) => {
+                assert.isObject(updates);
+                assert.deepEqual(updates.priceUpdates.length, 1);
+                assert.deepEqual(updates.priceUpdates[0].item, newPermanentItemUpdatedPrice);
+                assert.deepEqual(updates.priceUpdates[0].oldPrice, newPermanentItem.price);
+                assert.deepEqual(updates.priceUpdates[0].newPrice, newPermanentItemUpdatedPrice.price);
+                assert.deepEqual(updates.newOffers.length, 0);
+            });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"push" function handles multiple items at once', async () => {
+            const db = createDatabase();
+
+            await db.push([newOutletItem, newPermanentItem]).then((updates) => {
+                assert.isObject(updates);
+                assert.deepEqual(updates.priceUpdates.length, 0);
+                assert.deepEqual(updates.newOffers.length, 2);
+                assert.deepEqual(updates.newOffers[0], newOutletItem);
+                assert.deepEqual(updates.newOffers[1], newPermanentItem);
+                assert.deepEqual(updates.offerIds.length, 2);
+            });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
+    });
+
+    describe('Update current items', () => {
+        it('"updateCurrent" with empty array must empty the "current" table', async () => {
+            const db = createDatabase();
+
+            await db.updateCurrent([]).then(async () => {
                 await db.promiseQuery('SELECT COUNT(historyId) AS count FROM current').then((results) => {
-                    assert.deepEqual(results[0].count, 2);
+                    assert.deepEqual(results[0].count, 0);
                 });
             });
 
-        await new Promise((resolve) => db.close(resolve));
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"updateCurrent" must return an empty array if no items disappeared', async () => {
+            const db = createDatabase();
+
+            await db.updateCurrent([]).then((oldItems) => {
+                assert.deepEqual(oldItems.length, 0);
+            });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"updateCurrent" must handle offerIds returned by "push"', async () => {
+            const db = createDatabase();
+
+            await db.push([newOutletItem, newPermanentItem])
+                .then((updates) => db.updateCurrent(updates.offerIds))
+                .then(async () => {
+                    await db.promiseQuery('SELECT COUNT(historyId) AS count FROM current').then((results) => {
+                        assert.deepEqual(results[0].count, 2);
+                    });
+                });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"updateCurrent" must return a pushed outlet item when it is not in current anymore', async () => {
+            const db = createDatabase();
+
+            await db.push([newOutletItem]).then(() => db.updateCurrent([])).then((disappearedItems) => {
+                assert.deepEqual(disappearedItems.length, 1);
+                assert.deepEqual(disappearedItems[0], newOutletItem);
+            });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"updateCurrent" must return a pushed permanent item when it is not in current anymore', async () => {
+            const db = createDatabase();
+
+            await db.push([newPermanentItem]).then(() => db.updateCurrent([])).then((disappearedItems) => {
+                assert.deepEqual(disappearedItems.length, 1);
+                assert.deepEqual(disappearedItems[0], newPermanentItem);
+            });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"updateCurrent" must return multiple pushed items when they are not in current anymore', async () => {
+            const db = createDatabase();
+
+            await db.push([newOutletItem, newPermanentItem])
+                .then(() => db.updateCurrent([]))
+                .then((disappearedItems) => {
+                    assert.deepEqual(disappearedItems.length, 2);
+                    assert.deepEqual(disappearedItems[0], newOutletItem);
+                    assert.deepEqual(disappearedItems[1], newPermanentItem);
+                });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"updateCurrent" must return the right item if some items went away', async () => {
+            const db = createDatabase();
+
+            await db.push([newOutletItem, newPermanentItem])
+                .then((updates) => db.updateCurrent([updates.offerIds[0]]))
+                .then((disappearedItems) => {
+                    assert.deepEqual(disappearedItems.length, 1);
+                    assert.deepEqual(disappearedItems[0], newPermanentItem);
+                });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
+
+        it('"updateCurrent" must return the right item if some items went away (alternative version)', async () => {
+            const db = createDatabase();
+
+            await db.push([newOutletItem, newPermanentItem])
+                .then((updates) => db.updateCurrent([updates.offerIds[1]]))
+                .then((disappearedItems) => {
+                    assert.deepEqual(disappearedItems.length, 1);
+                    assert.deepEqual(disappearedItems[0], newOutletItem);
+                });
+
+            await new Promise((resolve) => db.close(resolve));
+        });
     });
 });
