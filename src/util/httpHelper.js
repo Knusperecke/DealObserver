@@ -8,7 +8,7 @@ function get(url, requestImpl = new XMLHttpRequest()) {
                     resolve(requestImpl.responseText);
 
                 } else {
-                    reject(new Error('Failed with status ' + requestImpl.status));
+                    reject(new Error(`Failed with status ${requestImpl.status} for url=${url}`));
                 }
             }
         };
@@ -26,7 +26,7 @@ function post(url, body, requestImpl = new XMLHttpRequest()) {
                     resolve(requestImpl.responseText);
 
                 } else {
-                    reject(new Error('Failed with status ' + requestImpl.status));
+                    reject(new Error(`Failed with status ${requestImpl.status} for url=${url} body=${body}`));
                 }
             }
         };
