@@ -34,7 +34,7 @@ const newOutletItemDifferentCondition = {
     id: 'speedmax cf 9.0 2017',
     price: 2299,
     offerId: '000000000000111695',
-    size: '|XS|',
+    size: '|XL|',
     modelYear: '2017',
     permanent: false,
     url: 'someUrl',
@@ -47,12 +47,12 @@ const newOutletItemDifferentPrice = {
     id: 'speedmax cf 9.0 2017',
     price: 1199,
     offerId: '000000000000111695',
-    size: '|XS|',
+    size: '|XL|',
     modelYear: '2017',
     permanent: false,
     url: 'someUrl',
     smallImgUrl: 'someOtherUrl',
-    condition: 'used'
+    condition: 'new'
 };
 
 const newPermanentItem = {
@@ -247,15 +247,14 @@ describe('Database', () => {
             await new Promise((resolve) => db.close(resolve));
         });
 
-        it('"push" function discerns condition of items', async () => {
+        it('"push" function DOES NOT discern condition of items (Parsing for condition not stable)', async () => {
             const db = createDatabase();
 
             await db.push([newOutletItem]);
             await db.push([newOutletItemDifferentCondition]).then((updates) => {
                 assert.isObject(updates);
                 assert.deepEqual(updates.priceUpdates.length, 0);
-                assert.deepEqual(updates.newOffers.length, 1);
-                assert.deepEqual(updates.newOffers[0], newOutletItemDifferentCondition);
+                assert.deepEqual(updates.newOffers.length, 0);
             });
 
             await new Promise((resolve) => db.close(resolve));
