@@ -6,11 +6,12 @@ const DefaultDatabase = require('../database/database');
 const DefaultNotifier = require('../notifier/notifier');
 const DefaultErrorNotifier = require('../notifier/errors');
 const Logger = require('../util/logger');
+const config = require('../../config');
 
 function run(
     Database = DefaultDatabase, Fetcher = CanyonFetcher, Parser = CanyonParser, Notifier = DefaultNotifier,
     ErrorNotifier = DefaultErrorNotifier) {
-    const db = Database('localhost', 'root', 'PinkiePie', 'canyon');
+    const db = Database(config.database.host, config.database.user, config.database.password, config.database.table);
     let currentItemIds = [];
     let newItems = [];
     let priceUpdates = [];

@@ -2,6 +2,7 @@
 
 const Database = require('../../src/database/database');
 const assert = require('chai').assert;
+const config = require('../../config');
 
 const newOutletItem = {
     name: 'Speedmax CF 9.0 2017',
@@ -83,7 +84,9 @@ const newPermanentItemUpdatedPrice = {
 
 describe('Database', () => {
     function createDatabase(dropTables = true) {
-        return Database('localhost', 'root', 'PinkiePie', 'test', dropTables);
+        return Database(
+            config.database.host, config.database.user, config.database.password, config.database.testTable,
+            dropTables);
     }
 
     describe('Basic behaviour', () => {
