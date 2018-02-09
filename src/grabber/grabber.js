@@ -4,9 +4,12 @@ const CanyonFetcher = require('./canyon/fetcher');
 const CanyonParser = require('./canyon/parser');
 const DefaultDatabase = require('../database/database');
 const DefaultNotifier = require('../notifier/notifier');
+const DefaultErrorNotifier = require('../notifier/errors');
 const Logger = require('../util/logger');
 
-function run(Database = DefaultDatabase, Fetcher = CanyonFetcher, Parser = CanyonParser, Notifier = DefaultNotifier) {
+function run(
+    Database = DefaultDatabase, Fetcher = CanyonFetcher, Parser = CanyonParser, Notifier = DefaultNotifier,
+    ErrorNotifier = DefaultErrorNotifier) {
     const db = Database('localhost', 'root', 'PinkiePie', 'canyon');
     let currentItemIds = [];
     let newItems = [];
@@ -26,7 +29,9 @@ function run(Database = DefaultDatabase, Fetcher = CanyonFetcher, Parser = Canyo
         .then(() => db.updateCurrent(currentItemIds))
         .then((soldOutItemsUpdate) => soldOutItems = soldOutItemsUpdate)
         .then(() => db.close())
-        .then(() => Notifier(newItems, priceUpdates, soldOutItems));
+        .then(() => Notifier(newItems, priceUpdates, soldOutItems))
+        .catch((error) => ErrorNotifier(error))
+        .catch((error) => Logger.error(error.message));
 }
 
 module.exports = run;
