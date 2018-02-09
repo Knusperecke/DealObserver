@@ -2,6 +2,7 @@
 
 const XMLHttpRequestImpl = require('xmlhttprequest').XMLHttpRequest;
 const HttpHelper = require('../util/httpHelper');
+const Logger = require('../util/logger');
 const config = require('../../config');
 
 function addPluralS(count) {
@@ -132,7 +133,8 @@ function notify(newOffers, priceUpdates, soldOutItems, HttpPost = HttpHelper.pos
     return postNewsEntry(newOffers.length, priceUpdates.length, soldOutItems.length, HttpPost)
         .then(() => postSoldOutItems(soldOutItems, HttpPost))
         .then(() => postNewOffers(newOffers, HttpPost))
-        .then(() => postPriceUpdates(priceUpdates, HttpPost));
+        .then(() => postPriceUpdates(priceUpdates, HttpPost))
+        .then(() => Logger.log('Finished notification handling'));
 }
 
 module.exports = notify;
