@@ -103,20 +103,20 @@ describe('Notifier', () => {
     describe('Posts sold out items', () => {
         it('Handles a sold out item by posting into the newOffers channel', async () => {
             await createNotifier([], [], [item]).then(() => {
-                assert.isOk(httpPostMock.calledWith(config.slack.newOffersWebHook));
+                assert.isOk(httpPostMock.calledWith(config.slack.soldOutWebHook));
             });
         });
 
         it('Handles a sold out item by posting into the newOffers channel (special formatting for unique items)',
            async () => {
                await createNotifier([], [], [uniqueItem]).then(() => {
-                   assert.isOk(httpPostMock.calledWith(config.slack.newOffersWebHook));
+                   assert.isOk(httpPostMock.calledWith(config.slack.soldOutWebHook));
                });
            });
 
         it('Handles multiple sold out items by posting multiple times into the newOffers channel', async () => {
             await createNotifier([], [], [item, item]).then(() => {
-                assert.isOk(httpPostMock.withArgs(config.slack.newOffersWebHook).calledTwice);
+                assert.isOk(httpPostMock.withArgs(config.slack.soldOutWebHook).calledTwice);
             });
         });
     });

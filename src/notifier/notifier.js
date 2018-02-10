@@ -24,7 +24,7 @@ function sentenice(expressions) {
 }
 
 function postNewsEntry(numNewOffers, numPriceUpdates, numSoldOutItems, HttpPost) {
-    if (numNewOffers === 0 && numPriceUpdates === 0 && numSoldOutItems === 0) {
+    if (config.slack.newsChannelName === '' || (numNewOffers === 0 && numPriceUpdates === 0 && numSoldOutItems === 0)) {
         return Promise.resolve();
     }
 
@@ -52,6 +52,10 @@ function postNewsEntry(numNewOffers, numPriceUpdates, numSoldOutItems, HttpPost)
 }
 
 function postSoldOutItems(soldOutItems, HttpPost) {
+    if (config.slack.soldOutChannelName === '') {
+        return Promise.resolve();
+    }
+
     const promises = soldOutItems.map((item) => {
         let attachmentText = `~${item.name}~ for ~${item.price} EUR~`;
 
@@ -60,8 +64,8 @@ function postSoldOutItems(soldOutItems, HttpPost) {
         }
 
         return HttpPost(
-            config.slack.newOffersWebHook, JSON.stringify({
-                channel: config.slack.newOffersChannelName,
+            config.slack.soldOutWebHook, JSON.stringify({
+                channel: config.slack.soldOutChannelName,
                 username: config.slack.notifierUserName,
                 text: 'Sold out:',
                 icon_emoji: config.slack.soldOutEmoji,
@@ -75,6 +79,10 @@ function postSoldOutItems(soldOutItems, HttpPost) {
 }
 
 function postNewOffers(newOffers, HttpPost) {
+    if (config.slack.newOffersChannelName === '') {
+        return Promise.resolve();
+    }
+
     const promises = newOffers.map((item) => {
         const text = item.permanent === true ? 'New offer:' : 'New unique offer:';
 
@@ -100,6 +108,10 @@ function postNewOffers(newOffers, HttpPost) {
 }
 
 function postPriceUpdates(priceUpdates, HttpPost) {
+    if (config.slack.priceUpdatesChannelName === '') {
+        return Promise.resolve();
+    }
+
     const promises = priceUpdates.map(({item, oldPrice, newPrice}) => {
         const text = 'Price change:';
 
