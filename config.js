@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-    database: {host: 'localhost', user: 'root', password: 'PinkiePie', table: 'canyon', testTable: 'test'},
+    database: {host: 'localhost', user: 'canyon', password: 'PinkiePie', table: 'canyon', testTable: 'test'},
     slack: {
         notifierUserName: 'PriceGrabber',
         notifierEmoji: ':zap:',
