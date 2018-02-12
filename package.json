@@ -10,7 +10,8 @@
     "format": "git-clang-format -f",
     "lint": "eslint ./ --cache --ignore-pattern .gitignore",
     "precommit-msg": "echo 'Pre-commit checks ...' && exit 0",
-    "grabber": "node src/grabber/main.js"
+    "grabber": "node src/grabber/main.js",
+    "grabber-initial": "node src/grabber/main.js --summary"
   },
   "pre-commit": [
     "precommit-msg",
@@ -33,6 +34,7 @@
     "karma-mocha": "^1.3.0",
     "karma-webpack": "^2.0.9",
     "karma-webpack-preprocessor": "^1.0.1",
+    "minimist": "^1.2.0",
     "mocha": "^5.0.0",
     "mysql": "^2.15.0",
     "nyc": "^11.4.1",

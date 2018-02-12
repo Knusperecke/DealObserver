@@ -69,8 +69,12 @@ function postSoldOutItems(soldOutItems, HttpPost) {
                 username: config.slack.notifierUserName,
                 text: 'Sold out:',
                 icon_emoji: config.slack.soldOutEmoji,
-                attachments:
-                    [{color: '#FF8888', text: attachmentText, image_url: item.smallImgUrl, footer: '=> ' + item.url}]
+                attachments: [{
+                    color: '#FF8888',
+                    text: attachmentText,
+                    image_url: item.smallImgUrl || '',
+                    footer: '=> ' + item.url || ''
+                }]
             }),
             new XMLHttpRequestImpl());
     });
@@ -98,8 +102,12 @@ function postNewOffers(newOffers, HttpPost) {
                 username: config.slack.notifierUserName,
                 text: text.trim(),
                 icon_emoji: config.slack.notifierEmoji,
-                attachments:
-                    [{color: '#88FF88', text: attachmentText, image_url: item.smallImgUrl, footer: '=> ' + item.url}]
+                attachments: [{
+                    color: '#88FF88',
+                    text: attachmentText,
+                    image_url: item.smallImgUrl || '',
+                    footer: '=> ' + item.url || ''
+                }]
             }),
             new XMLHttpRequestImpl());
     });
@@ -128,8 +136,8 @@ function postPriceUpdates(priceUpdates, HttpPost) {
                 attachments: [{
                     color: '#8888FF',
                     text: attachmentText,
-                    image_url: item.smallImgUrl,
-                    footer: '=> ' + item.url,
+                    image_url: item.smallImgUrl || '',
+                    footer: '=> ' + item.url || '',
                     fields: [
                         {title: 'New', value: newPrice, short: true}, {title: 'Old', value: oldPrice, short: true}
                     ]
@@ -141,11 +149,17 @@ function postPriceUpdates(priceUpdates, HttpPost) {
     return Promise.all(promises);
 }
 
-function notify(newOffers, priceUpdates, soldOutItems, HttpPost = HttpHelper.post) {
+function notify({newOffers, priceUpdates, soldOutItems, justSummary}, HttpPost = HttpHelper.post) {
     return postNewsEntry(newOffers.length, priceUpdates.length, soldOutItems.length, HttpPost)
-        .then(() => postSoldOutItems(soldOutItems, HttpPost))
-        .then(() => postNewOffers(newOffers, HttpPost))
-        .then(() => postPriceUpdates(priceUpdates, HttpPost))
+        .then(() => {
+            let ret = Promise.resolve();
+            if (!justSummary) {
+                ret = ret.then(() => postSoldOutItems(soldOutItems, HttpPost))
+                          .then(() => postNewOffers(newOffers, HttpPost))
+                          .then(() => postPriceUpdates(priceUpdates, HttpPost))
+            }
+            return ret;
+        })
         .then(() => Logger.log('Finished notification handling'));
 }
 

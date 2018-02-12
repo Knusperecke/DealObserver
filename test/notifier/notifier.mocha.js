@@ -46,9 +46,9 @@ const priceUpdateMoreExpensive = {
 describe('Notifier', () => {
     let httpPostMock;
 
-    function createNotifier(newOffers, priceUpdates, soldOutItems) {
+    function createNotifier(newOffers, priceUpdates, soldOutItems, justSummary = false) {
         httpPostMock = sinon.stub().returns(Promise.resolve());
-        return Notifier(newOffers, priceUpdates, soldOutItems, httpPostMock);
+        return Notifier({justSummary, newOffers, priceUpdates, soldOutItems}, httpPostMock);
     }
 
     it('Exports a function', () => {
@@ -56,7 +56,7 @@ describe('Notifier', () => {
     });
 
     it('Returns a promise', async () => {
-        await Notifier([], [], []).then(() => {
+        await Notifier({justSummary: false, newOffers: [], priceUpdates: [], soldOutItems: []}).then(() => {
             assert.isOk(true);
         });
     });
@@ -101,22 +101,28 @@ describe('Notifier', () => {
     });
 
     describe('Posts sold out items', () => {
-        it('Handles a sold out item by posting into the newOffers channel', async () => {
+        it('Handles a sold out item by posting into the soldOut channel', async () => {
             await createNotifier([], [], [item]).then(() => {
                 assert.isOk(httpPostMock.calledWith(config.slack.soldOutWebHook));
             });
         });
 
-        it('Handles a sold out item by posting into the newOffers channel (special formatting for unique items)',
+        it('Handles a sold out item by posting into the soldOut channel (special formatting for unique items)',
            async () => {
                await createNotifier([], [], [uniqueItem]).then(() => {
                    assert.isOk(httpPostMock.calledWith(config.slack.soldOutWebHook));
                });
            });
 
-        it('Handles multiple sold out items by posting multiple times into the newOffers channel', async () => {
+        it('Handles multiple sold out items by posting multiple times into the soldOut channel', async () => {
             await createNotifier([], [], [item, item]).then(() => {
                 assert.isOk(httpPostMock.withArgs(config.slack.soldOutWebHook).calledTwice);
+            });
+        });
+
+        it('Does not provide a "sold out" notification if summary mode is on', async () => {
+            await createNotifier([], [], [item], true).then(() => {
+                assert.isNotOk(httpPostMock.calledWith(config.slack.soldOutWebHook));
             });
         });
     });
@@ -139,6 +145,12 @@ describe('Notifier', () => {
                 assert.isOk(httpPostMock.withArgs(config.slack.newOffersWebHook).calledTwice);
             });
         });
+
+        it('Does not provide a "new offer" notification if summary mode is on', async () => {
+            await createNotifier([item], [], [], true).then(() => {
+                assert.isNotOk(httpPostMock.calledWith(config.slack.newOffersWebHook));
+            });
+        });
     });
 
     describe('Posts price updates', () => {
@@ -158,6 +170,12 @@ describe('Notifier', () => {
         it('Handles two price updates by posting two price update messages', async () => {
             await createNotifier([], [priceUpdate, priceUpdate], []).then(() => {
                 assert.isOk(httpPostMock.withArgs(config.slack.priceUpdatesWebHook).calledTwice);
+            });
+        });
+
+        it('Does not provide a "price update" notification if summary mode is on', async () => {
+            await createNotifier([], [priceUpdate], [], true).then(() => {
+                assert.isNotOk(httpPostMock.calledWith(config.slack.priceUpdatesWebHook));
             });
         });
     });

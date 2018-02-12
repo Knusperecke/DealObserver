@@ -8,9 +8,13 @@ const DefaultErrorNotifier = require('../notifier/errors');
 const Logger = require('../util/logger');
 const config = require('../../config');
 
+const inputArguments = require('minimist')(process.argv.slice(2));
+
 function run(
     Database = DefaultDatabase, Fetcher = CanyonFetcher, Parser = CanyonParser, Notifier = DefaultNotifier,
     ErrorNotifier = DefaultErrorNotifier) {
+    const justSummary = inputArguments.summary || false;
+
     const db = Database(config.database.host, config.database.user, config.database.password, config.database.table);
     let currentItemIds = [];
     let newItems = [];
@@ -30,7 +34,7 @@ function run(
         .then(() => db.updateCurrent(currentItemIds))
         .then((soldOutItemsUpdate) => soldOutItems = soldOutItemsUpdate)
         .then(() => db.close())
-        .then(() => Notifier(newItems, priceUpdates, soldOutItems))
+        .then(() => Notifier({justSummary, newItems, priceUpdates, soldOutItems}))
         .catch((error) => ErrorNotifier(error))
         .catch((error) => Logger.error(error.message));
 }

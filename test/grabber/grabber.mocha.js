@@ -86,7 +86,8 @@ describe('Grabber', () => {
                 sinon.stub().returns(Promise.resolve({offerIds: [], newOffers: [123], priceUpdates: []}));
             await createGrabber(fetcherMock, parserMock, dbPushMock);
 
-            assert.ok(config.notifierMock.calledWith([123]));
+            assert.ok(config.notifierMock.calledWith(
+                {newItems: [123], soldOutItems: [], priceUpdates: [], justSummary: false}));
         });
 
         it('Passes new offers from distinct push calls to notifier', async () => {
@@ -100,7 +101,8 @@ describe('Grabber', () => {
                                    .returns(Promise.resolve({offerIds: [], newOffers: [456], priceUpdates: []}));
             await createGrabber(fetcherMock, parserMock, dbPushMock);
 
-            assert.ok(config.notifierMock.calledWith(expectedNewOffers));
+            assert.ok(config.notifierMock.calledWith(
+                {newItems: expectedNewOffers, soldOutItems: [], priceUpdates: [], justSummary: false}));
         });
 
         it('Passes price updates to notifier', async () => {
@@ -110,7 +112,8 @@ describe('Grabber', () => {
                 sinon.stub().returns(Promise.resolve({offerIds: [], newOffers: [], priceUpdates: [123]}));
             await createGrabber(fetcherMock, parserMock, dbPushMock);
 
-            assert.ok(config.notifierMock.calledWith([], [123]));
+            assert.ok(config.notifierMock.calledWith(
+                {newItems: [], soldOutItems: [], priceUpdates: [123], justSummary: false}));
         });
 
         it('Passes price updates from distinct push calls to notifier', async () => {
@@ -124,7 +127,8 @@ describe('Grabber', () => {
                                    .returns(Promise.resolve({offerIds: [], newOffers: [], priceUpdates: [456]}));
             await createGrabber(fetcherMock, parserMock, dbPushMock);
 
-            assert.ok(config.notifierMock.calledWith([], expectedPriceUpdates));
+            assert.ok(config.notifierMock.calledWith(
+                {newItems: [], soldOutItems: [], priceUpdates: expectedPriceUpdates, justSummary: false}));
         });
 
         it('Passes items that disappeared to notifier', async () => {
@@ -136,7 +140,8 @@ describe('Grabber', () => {
             const dbUpdateCurrentMock = sinon.stub().returns(Promise.resolve([expectedItem]));
             await createGrabber(fetcherMock, parserMock, dbPushMock, dbUpdateCurrentMock);
 
-            assert.ok(config.notifierMock.calledWith([], [], [expectedItem]));
+            assert.ok(config.notifierMock.calledWith(
+                {newItems: [], soldOutItems: [expectedItem], priceUpdates: [], justSummary: false}));
         });
 
         it('Passes multiple items that disappeared to notifier', async () => {
@@ -148,7 +153,8 @@ describe('Grabber', () => {
             const dbUpdateCurrentMock = sinon.stub().returns(Promise.resolve(expectedItems));
             await createGrabber(fetcherMock, parserMock, dbPushMock, dbUpdateCurrentMock);
 
-            assert.ok(config.notifierMock.calledWith([], [], expectedItems));
+            assert.ok(config.notifierMock.calledWith(
+                {newItems: [], soldOutItems: expectedItems, priceUpdates: [], justSummary: false}));
         });
     });
 

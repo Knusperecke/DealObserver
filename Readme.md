@@ -92,7 +92,12 @@ Install:
 npm i
 ```
 
-To make a first run:
+To make a first run (Do not notify about each deal it finds):
+``` 
+npm run grabber-initial
+```
+
+To notify about each change in available items or prices, all subsequent runs would then use:
 ``` 
 npm run grabber
 ```
