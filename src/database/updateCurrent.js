@@ -41,7 +41,7 @@ function updateCurrent(promiseQuery, newHistoryIds) {
         .then((valuesString) => {
             if (valuesString !== '') {
                 return promiseQuery(
-                    `SELECT models.name, models.modelYear, history.itemCondition,\n` +
+                    `SELECT models.name, models.nameId, models.modelYear, history.itemCondition,\n` +
                     `       history.isPermanent, history.size, history.lastSellerId, \n` +
                     `       history.lastUrl, history.lastSmallImgUrl, history.price\n` +
                     `FROM history\n` +
@@ -54,7 +54,7 @@ function updateCurrent(promiseQuery, newHistoryIds) {
             return lostItemsQueryResult.map((result) => {
                 return {
                     name: result.name,
-                    id: result.name.toLowerCase(),
+                    id: result.nameId,
                     price: result.price,
                     offerId: result.lastSellerId,
                     size: result.size,
