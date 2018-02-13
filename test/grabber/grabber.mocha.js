@@ -58,7 +58,7 @@ describe('Grabber', () => {
             const parserMock = sinon.stub().returns(Promise.resolve(expectedData));
             await createGrabber({fetcherMock, parserMock});
 
-            assert.ok(config.push.calledWith(expectedData));
+            assert.ok(config.push.calledWith([expectedData]));
         });
 
         it('Passes offerIds from database.push to database.updateCurrent', async () => {
@@ -74,11 +74,8 @@ describe('Grabber', () => {
             const expectedOfferIds = [123, 456];
             const fetcherMock = sinon.stub().returns([Promise.resolve(), Promise.resolve()]);
             const parserMock = sinon.stub().returns(Promise.resolve());
-            const pushMock = sinon.stub()
-                                 .onFirstCall()
-                                 .returns(Promise.resolve({offerIds: [123], newOffers: [], priceUpdates: []}))
-                                 .onSecondCall()
-                                 .returns(Promise.resolve({offerIds: [456], newOffers: [], priceUpdates: []}));
+            const pushMock =
+                sinon.stub().returns(Promise.resolve({offerIds: [123, 456], newOffers: [], priceUpdates: []}));
             await createGrabber({fetcherMock, parserMock, pushMock});
 
             assert.ok(config.updateCurrent.calledWith(expectedOfferIds));
@@ -97,11 +94,8 @@ describe('Grabber', () => {
             const expectedNewOffers = [123, 456];
             const fetcherMock = sinon.stub().returns([Promise.resolve(), Promise.resolve()]);
             const parserMock = sinon.stub().returns(Promise.resolve());
-            const pushMock = sinon.stub()
-                                 .onFirstCall()
-                                 .returns(Promise.resolve({offerIds: [], newOffers: [123], priceUpdates: []}))
-                                 .onSecondCall()
-                                 .returns(Promise.resolve({offerIds: [], newOffers: [456], priceUpdates: []}));
+            const pushMock = sinon.stub().onFirstCall().returns(
+                Promise.resolve({offerIds: [], newOffers: [123, 456], priceUpdates: []}));
             await createGrabber({fetcherMock, parserMock, pushMock});
 
             assert.ok(config.updatePreprocessorMock.calledWith(
@@ -121,11 +115,8 @@ describe('Grabber', () => {
             const expectedPriceUpdates = [123, 456];
             const fetcherMock = sinon.stub().returns([Promise.resolve(), Promise.resolve()]);
             const parserMock = sinon.stub().returns(Promise.resolve());
-            const pushMock = sinon.stub()
-                                 .onFirstCall()
-                                 .returns(Promise.resolve({offerIds: [], newOffers: [], priceUpdates: [123]}))
-                                 .onSecondCall()
-                                 .returns(Promise.resolve({offerIds: [], newOffers: [], priceUpdates: [456]}));
+            const pushMock = sinon.stub().onFirstCall().returns(
+                Promise.resolve({offerIds: [], newOffers: [], priceUpdates: [123, 456]}));
             await createGrabber({fetcherMock, parserMock, pushMock});
 
             assert.ok(config.updatePreprocessorMock.calledWith(

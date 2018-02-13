@@ -17,6 +17,9 @@ function run(
     const justSummary = inputArguments.summary || false;
 
     const db = Database(config.database.host, config.database.user, config.database.password, config.database.table);
+
+    let grabbedItems = [];
+
     let currentItemIds = [];
     let newOffers = [];
     let priceUpdates = [];
@@ -24,14 +27,16 @@ function run(
 
     return Promise
         .all(Fetcher().map((query) => {
-            return query.then(Parser).then((items) => db.push(items)).then((updates) => {
-                Logger.log(`Received updates for ${updates.offerIds.length} items, ${
-                    updates.newOffers.length} new offers, ${updates.priceUpdates.length} price updates`)
-                currentItemIds = currentItemIds.concat(updates.offerIds);
-                newOffers = newOffers.concat(updates.newOffers);
-                priceUpdates = priceUpdates.concat(updates.priceUpdates);
-            });
+            return query.then(Parser).then((items) => {grabbedItems = grabbedItems.concat(items)});
         }))
+        .then(() => db.push(grabbedItems))
+        .then((updates) => {
+            Logger.log(`Received updates for ${updates.offerIds.length} items, ${
+                updates.newOffers.length} new offers, ${updates.priceUpdates.length} price updates`)
+            currentItemIds = currentItemIds.concat(updates.offerIds);
+            newOffers = newOffers.concat(updates.newOffers);
+            priceUpdates = priceUpdates.concat(updates.priceUpdates);
+        })
         .then(() => db.updateCurrent(currentItemIds))
         .then((soldOutItemsUpdate) => soldOutItems = soldOutItemsUpdate)
         .then(() => db.close())
