@@ -1,6 +1,6 @@
 {
   "name": "canyon-grabber",
-  "version": "0.0.1-alpha",
+  "version": "0.0.2-alpha",
   "description": "Catch prices and updated offers from Canyon",
   "main": "index.js",
   "scripts": {
