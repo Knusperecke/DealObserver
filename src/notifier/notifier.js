@@ -124,8 +124,8 @@ function postPriceUpdates(priceUpdates, HttpPost) {
         const text = 'Price change:';
 
         const sign = oldPrice > newPrice ? '-' : '+';
-        const attachmentText =
-            '_' + item.name + '_ in ' + item.size + ' *' + sign + Math.abs((100 - (newPrice * 100 / oldPrice))).toFixed(2) + '%*';
+        const attachmentText = '_' + item.name + '_ in ' + item.size + ' *' + sign +
+            Math.abs((100 - (newPrice * 100 / oldPrice))).toFixed(2) + '%*';
 
         return HttpPost(
             config.slack.priceUpdatesWebHook, JSON.stringify({

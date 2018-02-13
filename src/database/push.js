@@ -45,14 +45,14 @@ function updateExistingOffer(promiseQuery, item, modelId, historyId) {
 }
 
 function pushItem(promiseQuery, item) {
-    return promiseQuery(`SELECT modelId FROM models WHERE name='${item.name}' AND modelYear=${item.modelYear}`)
+    return promiseQuery(`SELECT modelId FROM models WHERE nameId='${item.id}' AND modelYear=${item.modelYear}`)
         .then((modelQueryResult) => {
             if (modelQueryResult.length) {
                 return modelQueryResult[0].modelId;
             }
 
             Logger.log(`Adding new model ${item.name}`);
-            return promiseQuery(`INSERT INTO models (name, modelYear) VALUES ('${item.name}', ${
+            return promiseQuery(`INSERT INTO models (name, nameId, modelYear) VALUES ('${item.name}', '${item.id}', ${
                                     item.modelYear}); SELECT LAST_INSERT_ID() AS id`)
                 .then((insertQueryResult) => {
                     return insertQueryResult[1][0].id;

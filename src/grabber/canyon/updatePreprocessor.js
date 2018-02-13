@@ -5,7 +5,7 @@ function isSimilarOutletItem(newItem, oldItem) {
         return false;
     }
 
-    if (newItem.name !== oldItem.name) {
+    if (newItem.id !== oldItem.id) {
         return false;
     }
 

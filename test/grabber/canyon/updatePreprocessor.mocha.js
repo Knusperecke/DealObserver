@@ -11,7 +11,7 @@ const emptyUpdate = {
 
 const permanentItem = {
     name: 'Bike 2017',
-    id: 'Bike 2017',
+    id: 'bike 2017',
     price: 1000,
     offerId: '42',
     size: '|M|',
@@ -24,7 +24,20 @@ const permanentItem = {
 
 const outletItem = {
     name: 'Bike',
-    id: 'Bike 2017',
+    id: 'bike 2017',
+    price: 1000,
+    offerId: '42',
+    size: '|M|',
+    modelYear: '2017',
+    permanent: false,
+    url: 'someUrl',
+    smallImgUrl: 'someOtherUrl',
+    condition: 'broken'
+};
+
+const outletItemDifferntlySpelledName = {
+    name: 'BIKE',
+    id: 'bike 2017',
     price: 1000,
     offerId: '42',
     size: '|M|',
@@ -37,7 +50,7 @@ const outletItem = {
 
 const outletItemDifferentCondition = {
     name: 'Bike',
-    id: 'Bike 2017',
+    id: 'bike 2017',
     price: 1000,
     offerId: '42',
     size: '|M|',
@@ -50,7 +63,7 @@ const outletItemDifferentCondition = {
 
 const outletItemDifferentSize = {
     name: 'Bike',
-    id: 'Bike 2017',
+    id: 'bike 2017',
     price: 1000,
     offerId: '42',
     size: '|XXXXL|',
@@ -63,7 +76,7 @@ const outletItemDifferentSize = {
 
 const outletItemDifferentName = {
     name: 'Another Bike',
-    id: 'Another Bike 2017',
+    id: 'another bike 2017',
     price: 1000,
     offerId: '42',
     size: '|M|',
@@ -76,7 +89,7 @@ const outletItemDifferentName = {
 
 const outletItemDifferentPrice = {
     name: 'Bike',
-    id: 'Bike 2017',
+    id: 'bike 2017',
     price: 999,
     offerId: '42',
     size: '|M|',
@@ -111,6 +124,16 @@ describe('Canyon Preprocessor for Notifier Updates', () => {
         const inputUpdate = {newOffers: [outletItem], soldOutItems: [outletItem], priceUpdates: []};
         assert.deepEqual(UpdatePreprocessor(inputUpdate), emptyUpdate);
     });
+
+    it('Removes the update if the item is both in newOffers and soldOutItems, name can be spelled differently, id must match',
+       () => {
+           const inputUpdate = {
+               newOffers: [outletItem],
+               soldOutItems: [outletItemDifferntlySpelledName],
+               priceUpdates: []
+           };
+           assert.deepEqual(UpdatePreprocessor(inputUpdate), emptyUpdate);
+       });
 
     it('Removes the update if the item is both in newOffers and soldOutItems, even if it is in a different condition (condition from server can vary)',
        () => {

@@ -16,6 +16,7 @@ function setup(db, wantsDropTables) {
     db.query(
         'CREATE TABLE IF NOT EXISTS models (' +
         'modelId INT NOT NULL AUTO_INCREMENT,' +
+        'nameId VARCHAR(255) NOT NULL,' +
         'name VARCHAR(255) NOT NULL,' +
         'modelYear INT,' +
         'UNIQUE (modelId)' +
