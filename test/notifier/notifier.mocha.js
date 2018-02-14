@@ -43,6 +43,12 @@ const priceUpdateMoreExpensive = {
     newPrice: 2299
 };
 
+const priceUpdateUnique = {
+    item: uniqueItem,
+    oldPrice: 9999,
+    newPrice: 2299
+};
+
 describe('Notifier', () => {
     let httpPostMock;
 
@@ -170,6 +176,12 @@ describe('Notifier', () => {
         it('Handles two price updates by posting two price update messages', async () => {
             await createNotifier([], [priceUpdate, priceUpdate], []).then(() => {
                 assert.isOk(httpPostMock.withArgs(config.slack.priceUpdatesWebHook).calledTwice);
+            });
+        });
+
+        it('Handles a price update by posting a price update message, specific channel for unique items', async () => {
+            await createNotifier([], [priceUpdateUnique], []).then(() => {
+                assert.isOk(httpPostMock.calledWith(config.slack.priceUpdatesOutletWebHook));
             });
         });
 

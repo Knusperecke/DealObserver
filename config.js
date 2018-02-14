@@ -11,6 +11,8 @@ module.exports = {
         newsChannelName: '#news',
         priceUpdatesWebHook: 'https://hooks.slack.com/services/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',
         priceUpdatesChannelName: '#price-updates',
+        priceUpdatesOutletWebHook: 'https://hooks.slack.com/services/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',
+        priceUpdatesOutletChannelName: '#price-updates-outlet',
         newOffersWebHook: 'https://hooks.slack.com/services/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',
         newOffersChannelName: '#new-offers',
         soldOutWebHook: 'https://hooks.slack.com/services/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',

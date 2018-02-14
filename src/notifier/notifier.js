@@ -116,11 +116,16 @@ function postNewOffers(newOffers, HttpPost) {
 }
 
 function postPriceUpdates(priceUpdates, HttpPost) {
-    if (config.slack.priceUpdatesChannelName === '') {
-        return Promise.resolve();
-    }
-
     const promises = priceUpdates.map(({item, oldPrice, newPrice}) => {
+        const webHookToUse =
+            item.permanent === true ? config.slack.priceUpdatesWebHook : config.slack.priceUpdatesOutletWebHook;
+        const channelNameToUse =
+            item.permanent === true ? config.slack.priceUpdatesChannelName : config.slack.priceUpdatesOutletChannelName;
+
+        if (webHookToUse === '') {
+            return Promise.resolve();
+        }
+
         const text = 'Price change:';
 
         const sign = oldPrice > newPrice ? '-' : '+';
@@ -128,8 +133,8 @@ function postPriceUpdates(priceUpdates, HttpPost) {
             Math.abs((100 - (newPrice * 100 / oldPrice))).toFixed(2) + '%*';
 
         return HttpPost(
-            config.slack.priceUpdatesWebHook, JSON.stringify({
-                channel: config.slack.priceUpdatesChannelName,
+            webHookToUse, JSON.stringify({
+                channel: channelNameToUse,
                 username: config.slack.notifierUserName,
                 text: text.trim(),
                 icon_emoji: config.slack.notifierEmoji,
