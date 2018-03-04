@@ -17,6 +17,19 @@ const newOutletItem = {
     condition: 'new'
 };
 
+const newOutletItemIdenticalOnDbLayer = {
+    name: 'Speedmax CF 9.0 2017',
+    id: 'speedmax cf 9.0 2017',
+    price: 2299,
+    offerId: '000000000000666777',
+    size: '|XL|',
+    modelYear: '2017',
+    permanent: false,
+    url: 'someUrl2',
+    smallImgUrl: 'someOtherUrl2',
+    condition: 'new'
+};
+
 const newOutletItemDifferentSize = {
     name: 'Speedmax CF 9.0 2017',
     id: 'speedmax cf 9.0 2017',
@@ -226,7 +239,9 @@ describe('Database', () => {
         it('"push" function detects known items', async () => {
             const db = createDatabase();
 
-            await db.push([newOutletItem]);
+            await db.push([newOutletItem]).then(async (updates) => {
+                await db.updateCurrent(updates.offerIds);
+            });
             await db.push([newOutletItem]).then((updates) => {
                 assert.isObject(updates);
                 assert.deepEqual(updates.priceUpdates.length, 0);
@@ -253,7 +268,9 @@ describe('Database', () => {
         it('"push" function DOES NOT discern condition of items (Parsing for condition not stable)', async () => {
             const db = createDatabase();
 
-            await db.push([newOutletItem]);
+            await db.push([newOutletItem]).then(async (updates) => {
+                await db.updateCurrent(updates.offerIds);
+            });
             await db.push([newOutletItemDifferentCondition]).then((updates) => {
                 assert.isObject(updates);
                 assert.deepEqual(updates.priceUpdates.length, 0);
@@ -294,7 +311,9 @@ describe('Database', () => {
         it('"push" function provides a price update for permanent items', async () => {
             const db = createDatabase();
 
-            await db.push([newPermanentItem]);
+            await db.push([newPermanentItem]).then(async (updates) => {
+                await db.updateCurrent(updates.offerIds);
+            });
             await db.push([newPermanentItemUpdatedPrice]).then((updates) => {
                 assert.isObject(updates);
                 assert.deepEqual(updates.priceUpdates.length, 1);
@@ -321,6 +340,34 @@ describe('Database', () => {
 
             await new Promise((resolve) => db.close(resolve));
         });
+
+        it('"push" function updates all current items if one item matches multiple similar ones (tradeoff if we cannot discern them))',
+           async () => {
+               const db = createDatabase();
+
+               await db.push([newOutletItem, newOutletItemIdenticalOnDbLayer]).then(async (updates) => {
+                   assert.isObject(updates);
+                   assert.deepEqual(updates.priceUpdates.length, 0);
+                   assert.deepEqual(updates.newOffers.length, 2);
+                   assert.deepEqual(updates.newOffers[0], newOutletItem);
+                   assert.deepEqual(updates.newOffers[1], newOutletItemIdenticalOnDbLayer);
+                   assert.deepEqual(updates.offerIds.length, 2);
+
+                   await db.updateCurrent(updates.offerIds);
+               });
+
+               await db.push([newOutletItem, newOutletItemIdenticalOnDbLayer]).then(async (updates) => {
+                   assert.isObject(updates);
+                   assert.deepEqual(updates.priceUpdates.length, 0);
+                   assert.deepEqual(updates.newOffers.length, 0);
+                   assert.deepEqual(updates.offerIds.length, 2);
+
+                   await db.updateCurrent(updates.offerIds);
+               });
+
+               await new Promise((resolve) => db.close(resolve));
+           });
+        
     });
 
     describe('Update current items', () => {
@@ -363,10 +410,13 @@ describe('Database', () => {
         it('"updateCurrent" must return a pushed outlet item when it is not in current anymore', async () => {
             const db = createDatabase();
 
-            await db.push([newOutletItem]).then(() => db.updateCurrent([])).then((disappearedItems) => {
-                assert.deepEqual(disappearedItems.length, 1);
-                assert.deepEqual(disappearedItems[0], newOutletItem);
-            });
+            await db.push([newOutletItem])
+                .then((updates) => db.updateCurrent(updates.offerIds))
+                .then(() => db.updateCurrent([]))
+                .then((disappearedItems) => {
+                    assert.deepEqual(disappearedItems.length, 1);
+                    assert.deepEqual(disappearedItems[0], newOutletItem);
+                });
 
             await new Promise((resolve) => db.close(resolve));
         });
@@ -374,10 +424,13 @@ describe('Database', () => {
         it('"updateCurrent" must return a pushed permanent item when it is not in current anymore', async () => {
             const db = createDatabase();
 
-            await db.push([newPermanentItem]).then(() => db.updateCurrent([])).then((disappearedItems) => {
-                assert.deepEqual(disappearedItems.length, 1);
-                assert.deepEqual(disappearedItems[0], newPermanentItem);
-            });
+            await db.push([newPermanentItem])
+                .then((updates) => db.updateCurrent(updates.offerIds))
+                .then(() => db.updateCurrent([]))
+                .then((disappearedItems) => {
+                    assert.deepEqual(disappearedItems.length, 1);
+                    assert.deepEqual(disappearedItems[0], newPermanentItem);
+                });
 
             await new Promise((resolve) => db.close(resolve));
         });
@@ -386,6 +439,7 @@ describe('Database', () => {
             const db = createDatabase();
 
             await db.push([newOutletItem, newPermanentItem])
+                .then((updates) => db.updateCurrent(updates.offerIds))
                 .then(() => db.updateCurrent([]))
                 .then((disappearedItems) => {
                     assert.deepEqual(disappearedItems.length, 2);
@@ -400,6 +454,10 @@ describe('Database', () => {
             const db = createDatabase();
 
             await db.push([newOutletItem, newPermanentItem])
+                .then(async (updates) => {
+                    await db.updateCurrent(updates.offerIds);
+                    return updates;
+                })
                 .then((updates) => db.updateCurrent([updates.offerIds[0]]))
                 .then((disappearedItems) => {
                     assert.deepEqual(disappearedItems.length, 1);
@@ -413,6 +471,10 @@ describe('Database', () => {
             const db = createDatabase();
 
             await db.push([newOutletItem, newPermanentItem])
+                .then(async (updates) => {
+                    await db.updateCurrent(updates.offerIds);
+                    return updates;
+                })
                 .then((updates) => db.updateCurrent([updates.offerIds[1]]))
                 .then((disappearedItems) => {
                     assert.deepEqual(disappearedItems.length, 1);

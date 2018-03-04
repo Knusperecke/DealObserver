@@ -17,10 +17,7 @@ function addNewItem(promiseQuery, item, modelId, permanent) {
         .then((insertQueryResult) => {
             const historyId = insertQueryResult[1][0].id;
             Logger.log(`Added new history item id=${historyId}`);
-            return promiseQuery(`INSERT INTO current (historyId) VALUES (${historyId})`).then(() => {
-                Logger.log(`Added item to current`);
-                return {item, isNew: true, newPrice: item.price, offerId: historyId};
-            });
+            return [{item, isNew: true, newPrice: item.price, offerId: historyId}];
         });
 }
 
@@ -73,8 +70,8 @@ function pushItem(promiseQuery, item) {
         })
         .then(({historyQueryResult, modelId, permanent}) => {
             if (historyQueryResult.length) {
-                const historyId = historyQueryResult[0].historyId;
-                return updateExistingOffer(promiseQuery, item, modelId, historyId);
+                return Promise.all(historyQueryResult.map(
+                    (result) => updateExistingOffer(promiseQuery, item, modelId, result.historyId)));
             }
 
             return addNewItem(promiseQuery, item, modelId, permanent);
@@ -89,16 +86,20 @@ function push(promiseQuery, items) {
     let promise = Promise.resolve();
 
     items.forEach((item) => {
-        promise = promise.then(() => pushItem(promiseQuery, item)).then((update) => {
-            if (update.isNew) {
-                newOffers.push(update.item);
-            }
+        promise = promise.then(() => pushItem(promiseQuery, item)).then((updates) => {
+            updates.forEach((update) => {
+                if (update.isNew) {
+                    newOffers.push(update.item);
+                }
 
-            if (update.oldPrice && update.oldPrice != update.newPrice) {
-                priceUpdates.push(update);
-            }
+                if (update.oldPrice && update.oldPrice != update.newPrice) {
+                    priceUpdates.push(update);
+                }
 
-            offerIds.push(update.offerId)
+                if (!offerIds.includes(update.offerId)) {
+                    offerIds.push(update.offerId)
+                }
+            });
         });
     });
 
