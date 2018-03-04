@@ -2,3 +2,5 @@ node_modules
 .idea
 .eslintcache
 .nyc_output
+.vscode/settings.json
+settings.json
