@@ -3,7 +3,6 @@
 const XMLHttpRequestImpl = require('xmlhttprequest').XMLHttpRequest;
 const HttpHelper = require('../util/httpHelper');
 const Logger = require('../util/logger');
-const config = require('../../config');
 
 function addPluralS(count) {
     return count > 1 ? 's' : '';
@@ -23,7 +22,7 @@ function sentenice(expressions) {
     return ret;
 }
 
-function postNewsEntry(numNewOffers, numPriceUpdates, numSoldOutItems, HttpPost) {
+function postNewsEntry(numNewOffers, numPriceUpdates, numSoldOutItems, config, HttpPost) {
     if (config.slack.newsChannelName === '' || (numNewOffers === 0 && numPriceUpdates === 0 && numSoldOutItems === 0)) {
         return Promise.resolve();
     }
@@ -51,7 +50,7 @@ function postNewsEntry(numNewOffers, numPriceUpdates, numSoldOutItems, HttpPost)
         new XMLHttpRequestImpl());
 }
 
-function postSoldOutItems(soldOutItems, HttpPost) {
+function postSoldOutItems(soldOutItems, config, HttpPost) {
     if (config.slack.soldOutChannelName === '') {
         return Promise.resolve();
     }
@@ -82,7 +81,7 @@ function postSoldOutItems(soldOutItems, HttpPost) {
     return Promise.all(promises);
 }
 
-function postNewOffers(newOffers, HttpPost) {
+function postNewOffers(newOffers, config, HttpPost) {
     if (config.slack.newOffersChannelName === '') {
         return Promise.resolve();
     }
@@ -115,7 +114,7 @@ function postNewOffers(newOffers, HttpPost) {
     return Promise.all(promises);
 }
 
-function postPriceUpdates(priceUpdates, HttpPost) {
+function postPriceUpdates(priceUpdates, config, HttpPost) {
     const promises = priceUpdates.map(({item, oldPrice, newPrice}) => {
         const webHookToUse =
             item.permanent === true ? config.slack.priceUpdatesWebHook : config.slack.priceUpdatesOutletWebHook;
@@ -154,14 +153,14 @@ function postPriceUpdates(priceUpdates, HttpPost) {
     return Promise.all(promises);
 }
 
-function notify({newOffers, priceUpdates, soldOutItems, justSummary}, HttpPost = HttpHelper.post) {
-    return postNewsEntry(newOffers.length, priceUpdates.length, soldOutItems.length, HttpPost)
+function notify({newOffers, priceUpdates, soldOutItems, justSummary, config}, HttpPost = HttpHelper.post) {
+    return postNewsEntry(newOffers.length, priceUpdates.length, soldOutItems.length, config, HttpPost)
         .then(() => {
             let ret = Promise.resolve();
             if (!justSummary) {
-                ret = ret.then(() => postSoldOutItems(soldOutItems, HttpPost))
-                          .then(() => postNewOffers(newOffers, HttpPost))
-                          .then(() => postPriceUpdates(priceUpdates, HttpPost))
+                ret = ret.then(() => postSoldOutItems(soldOutItems, config, HttpPost))
+                          .then(() => postNewOffers(newOffers, config, HttpPost))
+                          .then(() => postPriceUpdates(priceUpdates, config, HttpPost))
             }
             return ret;
         })

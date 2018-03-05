@@ -2,7 +2,8 @@
 
 const Database = require('../../src/database/database');
 const assert = require('chai').assert;
-const config = require('../../config');
+const localConfig = require('../../config.local');
+const defaultConfig = require('../../config');
 
 const newOutletItem = {
     name: 'Speedmax CF 9.0 2017',
@@ -97,6 +98,8 @@ const newPermanentItemUpdatedPrice = {
 
 describe('Database', () => {
     function createDatabase(dropTables = true) {
+        // Uses real database for tests, so we consume actual configuration
+        const config = Object.assign(defaultConfig, localConfig);
         return Database(
             config.database.host, config.database.user, config.database.password, config.database.testTable,
             dropTables);

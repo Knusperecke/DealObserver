@@ -2,10 +2,8 @@
 
 const XMLHttpRequestImpl = require('xmlhttprequest').XMLHttpRequest;
 const HttpHelper = require('../util/httpHelper');
-const config = require('../../config');
 
-
-function postError(error, HttpPost = HttpHelper.post) {
+function postError(error, config, HttpPost = HttpHelper.post) {
     return HttpPost(
         config.slack.debugWebHook, JSON.stringify({
             channel: config.slack.debugChannelName,

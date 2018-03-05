@@ -3,7 +3,6 @@
 const Notifier = require('../../src/notifier/notifier');
 const sinon = require('sinon');
 const assert = require('chai').assert;
-const config = require('../../config');
 
 const item = {
     name: 'Speedmax CF 9.0 2017',
@@ -51,10 +50,20 @@ const priceUpdateUnique = {
 
 describe('Notifier', () => {
     let httpPostMock;
+    const config = {
+        slack: {
+            newsWebHook: 'https://url-1',
+            priceUpdatesWebHook: 'https://url-2',
+            priceUpdatesOutletWebHook: 'https://url-3',
+            newOffersWebHook: 'https://url-4',
+            soldOutWebHook: 'https://url-5',
+            debugWebHook: 'https://url-6',
+        }
+    };
 
     function createNotifier(newOffers, priceUpdates, soldOutItems, justSummary = false) {
         httpPostMock = sinon.stub().returns(Promise.resolve());
-        return Notifier({justSummary, newOffers, priceUpdates, soldOutItems}, httpPostMock);
+        return Notifier({justSummary, newOffers, priceUpdates, soldOutItems, config}, httpPostMock);
     }
 
     it('Exports a function', () => {
@@ -62,7 +71,7 @@ describe('Notifier', () => {
     });
 
     it('Returns a promise', async () => {
-        await Notifier({justSummary: false, newOffers: [], priceUpdates: [], soldOutItems: []}).then(() => {
+        await Notifier({justSummary: false, newOffers: [], priceUpdates: [], soldOutItems: [], config}).then(() => {
             assert.isOk(true);
         });
     });

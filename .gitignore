@@ -4,3 +4,4 @@ node_modules
 .nyc_output
 .vscode/settings.json
 settings.json
+config.local.js

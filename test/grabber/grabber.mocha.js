@@ -24,10 +24,11 @@ describe('Grabber', () => {
         config.notifierMock = sinon.spy();
         config.errorNotifierMock = errorNotifierMock;
         config.updatePreprocessorMock = updatePreprocessorMock;
+        config.grabberConfig = {database: {host: '', user: '', password: '', table: ''}};
 
         return Grabber(
             config.databaseMock, config.fetcherMock, config.parserMock, config.notifierMock, config.errorNotifierMock,
-            config.updatePreprocessorMock);
+            config.updatePreprocessorMock, config.grabberConfig);
     }
 
     it('Provides a function to run', () => {
@@ -156,7 +157,8 @@ describe('Grabber', () => {
             const updatePreprocessorMock = sinon.stub().returns({expected: 'expected'});
             await createGrabber({fetcherMock, parserMock, pushMock, updatePreprocessorMock});
 
-            assert.ok(config.notifierMock.calledWith({expected: 'expected', justSummary: false}));
+            assert.ok(config.notifierMock.calledWith(
+                {expected: 'expected', justSummary: false, config: config.grabberConfig}));
         });
     });
 
