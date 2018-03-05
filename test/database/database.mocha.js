@@ -123,12 +123,6 @@ describe('Database', () => {
             db.close(done);
         });
 
-        it('Returns an object with a "promiseQuery" function', (done) => {
-            const db = createDatabase();
-            assert.isFunction(db.promiseQuery)
-            db.close(done);
-        });
-
         it('Returns an object with a "close" function', (done) => {
             const db = createDatabase();
             assert.isFunction(db.close)
@@ -148,23 +142,10 @@ describe('Database', () => {
     });
 
     describe('Queries', () => {
-        it('Query function supports a simple query', async () => {
+        it('query supports a simple query', async () => {
             const db = createDatabase();
 
-            await new Promise((resolve) => {
-                db.query('SELECT 1 + 1 AS solution', function(results) {
-                    assert.deepEqual(results[0].solution, 2);
-                    resolve();
-                });
-            });
-
-            await new Promise((resolve) => db.close(resolve));
-        });
-
-        it('promiseQuery supports a simple query', async () => {
-            const db = createDatabase();
-
-            await db.promiseQuery('SELECT 1 + 1 AS solution').then((results) => {
+            await db.query('SELECT 1 + 1 AS solution').then((results) => {
                 assert.deepEqual(results[0].solution, 2);
             });
 
@@ -175,11 +156,11 @@ describe('Database', () => {
     describe('Table structure', () => {
         it('Does not drops tables per default', async () => {
             let db = createDatabase();
-            await db.promiseQuery('INSERT INTO current (historyId) VALUES (7)');
+            await db.query('INSERT INTO current (historyId) VALUES (7)');
             await new Promise((resolve) => db.close(resolve));
 
             db = createDatabase(false);
-            await db.promiseQuery('SELECT historyId FROM current').then((results) => {
+            await db.query('SELECT historyId FROM current').then((results) => {
                 assert.deepEqual(results[0].historyId, 7);
             });
             await new Promise((resolve) => db.close(resolve));
@@ -189,11 +170,8 @@ describe('Database', () => {
             it(`Database has a table named ${name}`, async () => {
                 const db = createDatabase();
 
-                await new Promise((resolve) => {
-                    db.query(`SELECT * FROM ${name}`, function() {
-                        assert.ok(true);
-                        resolve();
-                    });
+                await db.query(`SELECT * FROM ${name}`).then(() => {
+                    assert.ok(true);
                 });
 
                 await new Promise((resolve) => db.close(resolve));
@@ -378,7 +356,7 @@ describe('Database', () => {
             const db = createDatabase();
 
             await db.updateCurrent([]).then(async () => {
-                await db.promiseQuery('SELECT COUNT(historyId) AS count FROM current').then((results) => {
+                await db.query('SELECT COUNT(historyId) AS count FROM current').then((results) => {
                     assert.deepEqual(results[0].count, 0);
                 });
             });
@@ -402,7 +380,7 @@ describe('Database', () => {
             await db.push([newOutletItem, newPermanentItem])
                 .then((updates) => db.updateCurrent(updates.offerIds))
                 .then(async () => {
-                    await db.promiseQuery('SELECT COUNT(historyId) AS count FROM current').then((results) => {
+                    await db.query('SELECT COUNT(historyId) AS count FROM current').then((results) => {
                         assert.deepEqual(results[0].count, 2);
                     });
                 });

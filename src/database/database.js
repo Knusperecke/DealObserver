@@ -32,15 +32,14 @@ function connect(host, user, password, databaseName, dropTables = false) {
     });
 
     const db = {
-        query: Query.query.bind(this, connection),
-        promiseQuery: Query.promiseQuery.bind(this, connection),
+        query: Query.bind(this, connection),
         close: close.bind(this, connection),
     };
 
-    db.push = Push.bind(this, db.promiseQuery);
-    db.updateCurrent = UpdateCurrent.bind(this, db.promiseQuery);
+    db.push = Push.bind(this, db.query);
+    db.updateCurrent = UpdateCurrent.bind(this, db.query);
 
-    EnsureDatabaseSetup(db, dropTables);
+    EnsureDatabaseSetup(db.query, dropTables);
 
     return db;
 }

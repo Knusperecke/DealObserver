@@ -2,18 +2,18 @@
 
 const Logger = require('../util/logger');
 
-function dropTables(db) {
+async function dropTables(query) {
     ['models', 'current', 'history'].forEach((name) => {
-        db.query(`DROP TABLE ${name}`);
+        query(`DROP TABLE ${name}`);
     });
 }
 
-function setup(db, wantsDropTables) {
+function setup(query, wantsDropTables) {
     if (wantsDropTables) {
-        dropTables(db);
+        dropTables(query);
     }
 
-    db.query(
+    query(
         'CREATE TABLE IF NOT EXISTS models (' +
         'modelId INT NOT NULL AUTO_INCREMENT,' +
         'nameId VARCHAR(255) NOT NULL,' +
@@ -22,27 +22,27 @@ function setup(db, wantsDropTables) {
         'UNIQUE (modelId)' +
         ')');
 
-    db.query(
+    query(
         'CREATE TABLE IF NOT EXISTS current (' +
         'historyId INT NOT NULL' +
         ')');
 
-    db.query(
+    query(
         'CREATE TABLE IF NOT EXISTS history (\n' +
-            'historyId INT NOT NULL AUTO_INCREMENT,\n' +
-            'modelId INT NOT NULL,\n' +
-            'itemCondition VARCHAR(255),\n' +
-            'isPermanent TINYINT,\n' +
-            'size VARCHAR(64) NOT NULL,\n' +
-            'price DOUBLE,\n' +
-            'durationFrom DATETIME,\n' +
-            'durationTo DATETIME,\n' +
-            'lastSellerId VARCHAR(255) NOT NULL,\n' +
-            'lastUrl VARCHAR(255),\n' +
-            'lastSmallImgUrl VARCHAR(255),\n' +
-            'UNIQUE (historyId)\n' +
-            ')',
-        () => Logger.log('Ensured database setup'));
+        'historyId INT NOT NULL AUTO_INCREMENT,\n' +
+        'modelId INT NOT NULL,\n' +
+        'itemCondition VARCHAR(255),\n' +
+        'isPermanent TINYINT,\n' +
+        'size VARCHAR(64) NOT NULL,\n' +
+        'price DOUBLE,\n' +
+        'durationFrom DATETIME,\n' +
+        'durationTo DATETIME,\n' +
+        'lastSellerId VARCHAR(255) NOT NULL,\n' +
+        'lastUrl VARCHAR(255),\n' +
+        'lastSmallImgUrl VARCHAR(255),\n' +
+        'UNIQUE (historyId)\n' +
+        ')')
+        .then(() => Logger.log('Ensured database setup'));
 }
 
 module.exports = setup;

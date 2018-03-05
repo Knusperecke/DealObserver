@@ -14,18 +14,18 @@ function buildValuesString(historyIds, withBraces) {
     return ret;
 }
 
-function updateCurrent(promiseQuery, newHistoryIds) {
+function updateCurrent(query, newHistoryIds) {
     let oldHistoryIds = [];
 
-    return promiseQuery('SELECT historyId FROM current')
+    return query('SELECT historyId FROM current')
         .then((oldCurrentResult) => {
             oldHistoryIds = oldCurrentResult.map((result) => result.historyId);
         })
-        .then(() => promiseQuery('DELETE FROM current'))
+        .then(() => query('DELETE FROM current'))
         .then(() => buildValuesString(newHistoryIds, true))
         .then((valuesString) => {
             if (valuesString !== '') {
-                return promiseQuery('INSERT INTO current (historyId) VALUES ' + valuesString)
+                return query('INSERT INTO current (historyId) VALUES ' + valuesString)
             }
         })
         .then(() => {
@@ -40,7 +40,7 @@ function updateCurrent(promiseQuery, newHistoryIds) {
         .then((lostIds) => buildValuesString(lostIds, false))
         .then((valuesString) => {
             if (valuesString !== '') {
-                return promiseQuery(
+                return query(
                     `SELECT models.name, models.nameId, models.modelYear, history.itemCondition,\n` +
                     `       history.isPermanent, history.size, history.lastSellerId, \n` +
                     `       history.lastUrl, history.lastSmallImgUrl, history.price\n` +
