@@ -6,8 +6,8 @@ const localConfig = require('../../config.local');
 const defaultConfig = require('../../config');
 
 const newOutletItem = {
-    name: 'Speedmax CF 9.0 2017',
-    id: 'speedmax cf 9.0 2017',
+    name: 'MoxiSpeed CF 9.0 2017',
+    id: 'moxispeed cf 9.0 2017',
     price: 2299,
     offerId: '000000000000111695',
     size: '|XL|',
@@ -19,8 +19,8 @@ const newOutletItem = {
 };
 
 const newOutletItemIdenticalOnDbLayer = {
-    name: 'Speedmax CF 9.0 2017',
-    id: 'speedmax cf 9.0 2017',
+    name: 'MoxiSpeed CF 9.0 2017',
+    id: 'moxispeed cf 9.0 2017',
     price: 2299,
     offerId: '000000000000666777',
     size: '|XL|',
@@ -32,8 +32,8 @@ const newOutletItemIdenticalOnDbLayer = {
 };
 
 const newOutletItemDifferentSize = {
-    name: 'Speedmax CF 9.0 2017',
-    id: 'speedmax cf 9.0 2017',
+    name: 'MoxiSpeed CF 9.0 2017',
+    id: 'moxispeed cf 9.0 2017',
     price: 2299,
     offerId: '000000000000111695',
     size: '|XS|',
@@ -45,8 +45,8 @@ const newOutletItemDifferentSize = {
 };
 
 const newOutletItemDifferentCondition = {
-    name: 'Speedmax CF 9.0 2017',
-    id: 'speedmax cf 9.0 2017',
+    name: 'MoxiSpeed CF 9.0 2017',
+    id: 'moxispeed cf 9.0 2017',
     price: 2299,
     offerId: '000000000000111695',
     size: '|XL|',
@@ -58,8 +58,8 @@ const newOutletItemDifferentCondition = {
 };
 
 const newOutletItemDifferentPrice = {
-    name: 'Speedmax CF 9.0 2017',
-    id: 'speedmax cf 9.0 2017',
+    name: 'MoxiSpeed CF 9.0 2017',
+    id: 'moxispeed cf 9.0 2017',
     price: 1199,
     offerId: '000000000000111695',
     size: '|XL|',
@@ -71,8 +71,8 @@ const newOutletItemDifferentPrice = {
 };
 
 const newPermanentItem = {
-    name: 'Speedmax CF 9.0 2017',
-    id: 'speedmax cf 9.0 2017',
+    name: 'MoxiSpeed CF 9.0 2017',
+    id: 'moxispeed cf 9.0 2017',
     price: 2299,
     offerId: '000000000000111695',
     size: '|XL|',
@@ -84,8 +84,8 @@ const newPermanentItem = {
 };
 
 const newPermanentItemUpdatedPrice = {
-    name: 'Speedmax CF 9.0 2017',
-    id: 'speedmax cf 9.0 2017',
+    name: 'MoxiSpeed CF 9.0 2017',
+    id: 'moxispeed cf 9.0 2017',
     price: 1299,
     offerId: '000000000000111695',
     size: '|XL|',

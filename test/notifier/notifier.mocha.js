@@ -5,28 +5,28 @@ const sinon = require('sinon');
 const assert = require('chai').assert;
 
 const item = {
-    name: 'Speedmax CF 9.0 2017',
-    id: 'speedmax cf 9.0 2017',
+    name: 'MoxiSpeed CF 9.0 2017',
+    id: 'moxispeed cf 9.0 2017',
     price: 2299,
     offerId: '000000000000111695',
     size: '|XL|',
     modelYear: '2017',
     permanent: true,
-    url: 'https://www.canyon.com/img/outlet/22677_img_res.png',
-    smallImgUrl: 'https://static.canyon.com/img/cache/d4/9/aa4f663dac3837dc54dafdc850467.jpg',
+    url: 'https://bluber/22677_img_res.png',
+    smallImgUrl: 'https://blob/d4/9/aa4f663dac3837dc54dafdc850467.jpg',
     condition: 'new'
 };
 
 const uniqueItem = {
-    name: 'Speedmax CF 9.0 2017',
-    id: 'speedmax cf 9.0 2017',
+    name: 'MoxiSpeed CF 9.0 2017',
+    id: 'MoxiSpeed cf 9.0 2017',
     price: 2299,
     offerId: '000000000000111695',
     size: '|XL|',
     modelYear: '2017',
     permanent: false,
-    url: 'https://www.canyon.com/img/outlet/22677_img_res.png',
-    smallImgUrl: 'https://static.canyon.com/img/cache/d4/9/aa4f663dac3837dc54dafdc850467.jpg',
+    url: 'https://bluber/22677_img_res.png',
+    smallImgUrl: 'https://blob/d4/9/aa4f663dac3837dc54dafdc850467.jpg',
     condition: 'new'
 };
 

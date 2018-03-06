@@ -1,7 +1,7 @@
 {
   "name": "canyon-grabber",
-  "version": "0.0.2-alpha",
-  "description": "Catch prices and updated offers from Canyon",
+  "version": "1.0.0",
+  "description": "Catch deals and price changes",
   "main": "index.js",
   "scripts": {
     "test": "nyc mocha \"test/**/*.mocha.js\"",
