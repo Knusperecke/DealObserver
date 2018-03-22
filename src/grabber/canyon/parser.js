@@ -29,9 +29,11 @@ function parseForTargets(targets, htmlBlob) {
 
     const targetLength = results[firstTarget].length;
     targets.forEach(({name: targetName}) => {
-        if (results[targetName].length !== targetLength) {
-            const message = `Failed parsing outlet data ${firstTarget}.length=${targetLength} ${targetName}.length=${
-                results[targetName].length}`;
+        const message = `Failed parsing outlet data ${firstTarget}.length=${targetLength} ${targetName}.length=${
+            results[targetName].length}`;
+        if (results[targetName].length > targetLength) {
+            Logger.warn(message)
+        } else if (results[targetName].length < targetLength) {
             throw new Error(message);
         }
     });
