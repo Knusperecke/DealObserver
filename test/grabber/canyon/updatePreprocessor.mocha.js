@@ -1,6 +1,6 @@
 'use strict';
 
-const UpdatePreprocessor = require('../../../src/grabber/canyon/updatePreprocessor');
+const UpdatePreprocessor = require('../../../src/grabber/updatePreprocessor');
 const assert = require('chai').assert;
 
 const emptyUpdate = {

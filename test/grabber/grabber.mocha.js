@@ -27,8 +27,11 @@ describe('Grabber', () => {
         config.grabberConfig = {database: {host: '', user: '', password: '', table: ''}};
 
         return Grabber(
-            config.databaseMock, config.fetcherMock, config.parserMock, config.notifierMock, config.errorNotifierMock,
-            config.updatePreprocessorMock, config.grabberConfig);
+            config.databaseMock, [{
+                fetcher: config.fetcherMock,
+                parser: config.parserMock,
+            }],
+            config.updatePreprocessorMock, config.notifierMock, config.errorNotifierMock, config.grabberConfig);
     }
 
     it('Provides a function to run', () => {
