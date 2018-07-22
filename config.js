@@ -19,5 +19,6 @@ module.exports = {
         soldOutChannelName: '#new-offers',
         debugWebHook: '',
         debugChannelName: '#debug'
-    }
+    },
+    fahrradxxl: {baseUrl: 'https://www.fahrrad-xxl.de', itemsToWatch: []}
 };
