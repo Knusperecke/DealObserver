@@ -28,7 +28,7 @@ function run(
     let soldOutItems = [];
 
     return Promise
-        .all(Fetcher().map((query) => {
+        .all(Fetcher(config).map((query) => {
             return query.then(Parser).then((items) => {grabbedItems = grabbedItems.concat(items)});
         }))
         .then(() => db.push(grabbedItems))
