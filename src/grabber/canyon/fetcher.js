@@ -48,7 +48,7 @@ function normalOffers(HttpGet) {
     return openQueries;
 }
 
-function queries(HttpGet = HttpHelper.get) {
+function queries(config, HttpGet = HttpHelper.get) {
     return outlet(HttpGet).concat(normalOffers(HttpGet));
 }
 
