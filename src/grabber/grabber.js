@@ -11,6 +11,7 @@ const DefaultErrorNotifier = require('../notifier/errors');
 const Logger = require('../util/logger');
 const defaultConfig = require('../../config');
 const localConfig = require('../../config.local') || {};
+const object = require('lodash/object');
 
 const inputArguments = require('minimist')(process.argv.slice(2));
 
@@ -18,7 +19,7 @@ function run(
     Database = DefaultDatabase,
     cycles = [{fetcher: CanyonFetcher, parser: CanyonParser}, {fetcher: FahrradXxlFetcher, parser: FahrradXxlParser}],
     UpdatePreprocessor = DefaultUpdatePreprocessor, Notifier = DefaultNotifier, ErrorNotifier = DefaultErrorNotifier,
-    config = Object.assign(defaultConfig, localConfig)) {
+    config = object.merge(defaultConfig, localConfig)) {
     const justSummary = inputArguments.summary || false;
 
     const db = Database(config.database.host, config.database.user, config.database.password, config.database.table);
