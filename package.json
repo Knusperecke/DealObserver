@@ -33,6 +33,7 @@
     "karma-mocha": "^1.3.0",
     "karma-webpack": "^2.0.13",
     "karma-webpack-preprocessor": "^1.0.1",
+    "lodash": "^4.17.10",
     "minimist": "^1.2.0",
     "mocha": "^5.1.1",
     "mysql": "^2.15.0",
