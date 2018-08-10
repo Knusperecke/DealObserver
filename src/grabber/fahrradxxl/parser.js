@@ -8,8 +8,16 @@ function processItem(htmlBlob = '') {
     const nameMatch = htmlBlob.match(`<meta itemprop="name" content="([^"]*)">`) || [];
     const priceMatch = htmlBlob.match(`<div class="current-price">[^0-9]*([0-9.]*)`) || [];
     const offerIdMatch = htmlBlob.match(`data-item="([^"]*)"`) || [];
-    const imgUrlMatch =
-        htmlBlob.match(`<img src="([^"]*)" srcset="([^"]*) 1x,.*2x".*class="product_thumbnail__media">`) || [];
+    let imgUrlMatch =
+        htmlBlob.match(`<img.*src="([^"]*)" srcset="([^"]*) 1x,.*2x".*class="product_thumbnail__media">`) || [];
+    const imgUrlMatchNewer =
+        htmlBlob.match(`<img.*srcset="([^"]*) 1x,.*2x".*src="([^"]*)".*class="product_thumbnail__media">`) || [];
+
+    if (imgUrlMatch.length === 0) {
+        const end = imgUrlMatchNewer.splice(1).reverse();
+        const begin = imgUrlMatchNewer.splice(0, 1);
+        imgUrlMatch = begin.concat(end);
+    }
 
     if (nameMatch.length === 0) {
         return [];
