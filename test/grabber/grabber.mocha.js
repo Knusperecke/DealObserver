@@ -34,7 +34,7 @@ describe('Grabber', () => {
             config.updatePreprocessorMock, config.notifierMock, config.errorNotifierMock, config.grabberConfig);
     }
 
-    it.skip('Provides a function to run', () => {
+    it.skip('Debugging target via mocha', () => {
         Grabber();
     });
 
