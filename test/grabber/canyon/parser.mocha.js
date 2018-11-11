@@ -140,5 +140,28 @@ describe('Canyon parser', () => {
                 Parser.bind(Parser, {type: 'normalOffer', data: inputNoSmallImg}),
                 'Could not find small img in section');
         });
+
+        it('It ignores random gadget offers', () => {
+            input = ` <script type="application/ld+json">
+            {
+                "@context": "http://schema.org/"
+                , "@type": "Product"
+                , "name": "Amazing thing"
+                                                        , "sku": "0000000000001584817"
+                            , "brand": {
+                    "@type": "Brand"
+                    , "name": "CANYON"
+                }
+                                , "description": "The perfect match for your thing"
+                                        , "offers": {
+                    "@type": "Offer"
+                                        , "price": "11.95"
+                        , "priceCurrency": "EUR"
+                                    , "itemCondition": "http://schema.org/NewCondition"
+                    , "availability": "http://schema.org/InStock"             }
+            }
+            </script>`;
+            assert.deepEqual(Parser({type: 'normalOffer', data: input}), []);
+        });
     });
 });
