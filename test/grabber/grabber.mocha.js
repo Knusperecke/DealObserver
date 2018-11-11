@@ -34,6 +34,10 @@ describe('Grabber', () => {
             config.updatePreprocessorMock, config.notifierMock, config.errorNotifierMock, config.grabberConfig);
     }
 
+    it.skip('Provides a function to run', () => {
+        Grabber();
+    });
+
     it('Provides a function to run', () => {
         assert.isFunction(Grabber);
     });
