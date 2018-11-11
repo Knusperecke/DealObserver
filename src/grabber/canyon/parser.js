@@ -10,7 +10,7 @@ function parseForTargets(targets, htmlBlob) {
 
     targets.forEach(({name, regexp, keepSlashes, matchWhat = '[^"/]', endDelimiter = '["|/]'}) => {
         let names = htmlBlob.match(new RegExp(regexp + `["|/]?${matchWhat}*${endDelimiter}`, 'g')) || [];
-        names = names.filter((name) => !name.includes('"Canyon"'));
+        names = names.filter((name) => !name.match('"[Cc][Aa][Nn][Yy][Oo][Nn]"'));
         names = names.map((hit) => {
             let temp = hit.replace(regexp, '').replace(/"/g, '');
 
@@ -24,6 +24,13 @@ function parseForTargets(targets, htmlBlob) {
     });
 
     const firstTarget = targets[0].name;
+
+    // Hack to filter out gadgets
+    if (results['years'] && results['urls'] && results['years'].length == results['urls'].length) {
+        targets.forEach(({name: targetName}) => {
+            results[targetName].splice(results['years'].length);
+        });
+    }
 
     Logger.log(`Filtered canyon data: ${firstTarget}.length=${results[firstTarget].length}`);
 
@@ -97,8 +104,11 @@ function parseForSmallImgUrls(htmlBlob) {
 
 function processNormalOffer(htmlBlob) {
     const targets = [
-        {name: 'names', regexp: '"name": '}, {name: 'prices', regexp: '"price": '}, {name: 'skus', regexp: '"sku": '},
-        {name: 'years', regexp: '_img/bikes'}, {name: 'urls', regexp: '"image": "[^"]*"', keepSlashes: true},
+        {name: 'names', regexp: '"name": '},
+        {name: 'prices', regexp: '"price": '},
+        {name: 'skus', regexp: '"sku": '},
+        {name: 'years', regexp: 'img/bikes'},
+        {name: 'urls', regexp: '"image": "[^"]*"', keepSlashes: true},
     ];
 
     const results = parseForTargets(targets, htmlBlob);
