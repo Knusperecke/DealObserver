@@ -104,7 +104,7 @@ function parseForSmallImgUrls(htmlBlob) {
 
 function processNormalOffer(htmlBlob) {
     const targets = [
-        {name: 'names', regexp: '"name": '},
+        {name: 'names', regexp: ', "name": '},
         {name: 'prices', regexp: '"price": '},
         {name: 'skus', regexp: '"sku": '},
         {name: 'years', regexp: 'img/bikes'},
