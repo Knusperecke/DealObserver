@@ -1,9 +1,0 @@
----
-BasedOnStyle: Google
-Language: JavaScript
-IndentWidth: 4
-ObjCBlockIndentWidth: 4
-ColumnLimit: 120
-TabWidth: 4
-UseTab: Never
-JavaScriptQuotes: Single

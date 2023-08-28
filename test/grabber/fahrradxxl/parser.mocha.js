@@ -4,12 +4,12 @@ const Parser = require('../../../src/grabber/fahrradxxl/parser');
 const assert = require('chai').assert;
 
 describe('FahrradXXL parser', () => {
-    it('Returns an empty array for empty input', () => {
-        assert.deepEqual(Parser(''), []);
-    });
+  it('Returns an empty array for empty input', () => {
+    assert.deepEqual(Parser(''), []);
+  });
 
-    it('Grabs an item from the input', () => {
-        const input = `<div itemscope="" itemtype="http://schema.org/Product" class="product et_sticky_limiter">
+  it('Grabs an item from the input', () => {
+    const input = `<div itemscope="" itemtype="http://schema.org/Product" class="product et_sticky_limiter">
             <meta itemprop="brand" content="Radler">
             <meta itemprop="name" content="Buntes Rad mit vielen Klingeln">
             <div class="product__thumbnail product_thumbnail">
@@ -33,24 +33,24 @@ describe('FahrradXXL parser', () => {
             </div>
             </div>`;
 
-        const expectedItem = {
-            name: 'Buntes Rad mit vielen Klingeln',
-            id: 'buntes rad mit vielen klingeln',
-            price: 1999,
-            offerId: '150383',
-            size: '*',
-            modelYear: '0',
-            permanent: false,
-            url: 'https://www.fahrrad-xxl.de/img/large.jpg',
-            smallImgUrl: 'https://www.fahrrad-xxl.de/img/standard.jpg',
-            condition: 'NewCondition'
-        };
+    const expectedItem = {
+      name: 'Buntes Rad mit vielen Klingeln',
+      id: 'buntes rad mit vielen klingeln',
+      price: 1999,
+      offerId: '150383',
+      size: '*',
+      modelYear: '0',
+      permanent: false,
+      url: 'https://www.fahrrad-xxl.de/img/large.jpg',
+      smallImgUrl: 'https://www.fahrrad-xxl.de/img/standard.jpg',
+      condition: 'NewCondition',
+    };
 
-        assert.deepEqual(Parser(input), [expectedItem]);
-    });
+    assert.deepEqual(Parser(input), [expectedItem]);
+  });
 
-    it('Grabs an item from newer form of input', () => {
-        const input = `<div itemscope="" itemtype="http://schema.org/Product" class="product et_sticky_limiter">
+  it('Grabs an item from newer form of input', () => {
+    const input = `<div itemscope="" itemtype="http://schema.org/Product" class="product et_sticky_limiter">
             <meta itemprop="brand" content="Radler">
             <meta itemprop="name" content="Buntes Rad mit vielen Klingeln">
             <div class="product__thumbnail product_thumbnail">
@@ -74,28 +74,28 @@ describe('FahrradXXL parser', () => {
             </div>
             </div>`;
 
-        const expectedItem = {
-            name: 'Buntes Rad mit vielen Klingeln',
-            id: 'buntes rad mit vielen klingeln',
-            price: 1999,
-            offerId: '150383',
-            size: '*',
-            modelYear: '0',
-            permanent: false,
-            url: 'https://www.fahrrad-xxl.de/img/large.jpg',
-            smallImgUrl: 'https://www.fahrrad-xxl.de/img/standard.jpg',
-            condition: 'NewCondition'
-        };
+    const expectedItem = {
+      name: 'Buntes Rad mit vielen Klingeln',
+      id: 'buntes rad mit vielen klingeln',
+      price: 1999,
+      offerId: '150383',
+      size: '*',
+      modelYear: '0',
+      permanent: false,
+      url: 'https://www.fahrrad-xxl.de/img/large.jpg',
+      smallImgUrl: 'https://www.fahrrad-xxl.de/img/standard.jpg',
+      condition: 'NewCondition',
+    };
 
-        assert.deepEqual(Parser(input), [expectedItem]);
-    });
+    assert.deepEqual(Parser(input), [expectedItem]);
+  });
 
-    it('Aborts for incomplete data', () => {
-        const input = `<div itemscope="" itemtype="http://schema.org/Product" class="product et_sticky_limiter">
+  it('Aborts for incomplete data', () => {
+    const input = `<div itemscope="" itemtype="http://schema.org/Product" class="product et_sticky_limiter">
         <meta itemprop="brand" content="Radler">
         <meta itemprop="name" content="Buntes Rad mit vielen Klingeln">
         <div class="product__thumbnail product_thumbnail">`;
 
-        assert.throws(Parser.bind(Parser, input), 'Failed to parse an item');
-    });
+    assert.throws(Parser.bind(Parser, input), 'Failed to parse an item');
+  });
 });
