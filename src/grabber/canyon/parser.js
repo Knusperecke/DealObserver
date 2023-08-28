@@ -4,11 +4,11 @@ const Logger = require('../../util/logger');
 
 function parseForTargets(targets, htmlBlob) {
     const results = {};
-    targets.forEach(({name: targetName}) => {
+    targets.forEach(({ name: targetName }) => {
         results[targetName] = [];
     });
 
-    targets.forEach(({name, regexp, keepSlashes, matchWhat = '[^"/]', endDelimiter = '["|/]'}) => {
+    targets.forEach(({ name, regexp, keepSlashes, matchWhat = '[^"/]', endDelimiter = '["|/]' }) => {
         let names = htmlBlob.match(new RegExp(regexp + `["|/]?${matchWhat}*${endDelimiter}`, 'g')) || [];
         names = names.filter((name) => !name.match('"[Cc][Aa][Nn][Yy][Oo][Nn]"'));
         names = names.map((hit) => {
@@ -27,7 +27,7 @@ function parseForTargets(targets, htmlBlob) {
 
     // Hack to filter out gadgets
     if (results['years'] && results['urls'] && results['years'].length == results['urls'].length) {
-        targets.forEach(({name: targetName}) => {
+        targets.forEach(({ name: targetName }) => {
             results[targetName].splice(results['years'].length);
         });
     }
@@ -35,9 +35,8 @@ function parseForTargets(targets, htmlBlob) {
     Logger.log(`Filtered canyon data: ${firstTarget}.length=${results[firstTarget].length}`);
 
     const targetLength = results[firstTarget].length;
-    targets.forEach(({name: targetName}) => {
-        const message = `Failed parsing outlet data ${firstTarget}.length=${targetLength} ${targetName}.length=${
-            results[targetName].length}`;
+    targets.forEach(({ name: targetName }) => {
+        const message = `Failed parsing outlet data ${firstTarget}.length=${targetLength} ${targetName}.length=${results[targetName].length}`;
         if (results[targetName].length > targetLength) {
             Logger.warn(message)
         } else if (results[targetName].length < targetLength) {
@@ -50,11 +49,11 @@ function parseForTargets(targets, htmlBlob) {
 
 function processOutletData(htmlBlob) {
     const targets = [
-        {name: 'names', regexp: '"name": '}, {name: 'prices', regexp: '"price": '}, {name: 'skus', regexp: '"sku": '},
-        {name: 'sizes', regexp: 'data-size='}, {name: 'years', regexp: 'data-year='},
-        {name: 'conditions', regexp: 'itemCondition": "http://schema.org'},
-        {name: 'urls', regexp: '"image": "[^"]*"', keepSlashes: true},
-        {name: 'smallImgUrls', regexp: '1199w, ', keepSlashes: true, matchWhat: '[^ ]', endDelimiter: '[ ]'}
+        { name: 'names', regexp: ', "name": ' }, { name: 'prices', regexp: '"price": ' }, { name: 'skus', regexp: '"sku": ' },
+        { name: 'sizes', regexp: 'data-size=' }, { name: 'years', regexp: 'data-year=' },
+        { name: 'conditions', regexp: 'itemCondition": "http://schema.org' },
+        { name: 'urls', regexp: '"image": "[^"]*"', keepSlashes: true },
+        { name: 'smallImgUrls', regexp: '1199w, ', keepSlashes: true, matchWhat: '[^ ]', endDelimiter: '[ ]' }
     ];
 
     const results = parseForTargets(targets, htmlBlob);
@@ -90,7 +89,7 @@ function parseForSmallImgUrls(htmlBlob) {
     const offerSections = singleLineBlob.split(/"image": "/g).slice(1);
     const smallImgUrls = offerSections.map((section) => {
         const parseForSmallImgResult = parseForTargets(
-            [{name: 'smallImgUrls', regexp: '1199w, ', keepSlashes: true, matchWhat: '[^ ]', endDelimiter: '[ ]'}],
+            [{ name: 'smallImgUrls', regexp: '1199w, ', keepSlashes: true, matchWhat: '[^ ]', endDelimiter: '[ ]' }],
             section);
         const smallImgUrls = parseForSmallImgResult.smallImgUrls;
         if (smallImgUrls.length < 1) {
@@ -104,11 +103,11 @@ function parseForSmallImgUrls(htmlBlob) {
 
 function processNormalOffer(htmlBlob) {
     const targets = [
-        {name: 'names', regexp: ', "name": '},
-        {name: 'prices', regexp: '"price": '},
-        {name: 'skus', regexp: '"sku": '},
-        {name: 'years', regexp: 'img/bikes'},
-        {name: 'urls', regexp: '"image": "[^"]*"', keepSlashes: true},
+        { name: 'names', regexp: ', "name": ' },
+        { name: 'prices', regexp: '"price": ' },
+        { name: 'skus', regexp: '"sku": ' },
+        { name: 'years', regexp: 'img/bikes' },
+        { name: 'urls', regexp: '"image": "[^"]*"', keepSlashes: true },
     ];
 
     const results = parseForTargets(targets, htmlBlob);
@@ -139,7 +138,7 @@ function processNormalOffer(htmlBlob) {
     return returnValue;
 }
 
-function parse({type, data}) {
+function parse({ type, data }) {
     switch (type) {
         case 'outlet':
             return processOutletData(data);

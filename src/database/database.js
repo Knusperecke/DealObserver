@@ -1,6 +1,6 @@
 'use strict';
 
-const MySql = require('mysql');
+const MySql = require('mysql2');
 const EnsureDatabaseSetup = require('./setup');
 const Query = require('./query');
 const Push = require('./push');
@@ -22,7 +22,7 @@ function close(connection, callback) {
 
 function connect(host, user, password, databaseName, dropTables = false) {
     const connection = MySql.createConnection(
-        {host: host, user: user, password: password, database: databaseName, multipleStatements: true});
+        { host: host, user: user, password: password, database: databaseName, multipleStatements: true });
     connection.connect((error) => {
         if (error) {
             throw new Error('Failed in database connection: ' + error);
