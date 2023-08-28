@@ -111,6 +111,11 @@ describe('Database', () => {
             done();
         });
 
+        it('Create initial tables', (done) => {
+            createDatabase(false);
+            done();
+        });
+
         it('Returns an object', (done) => {
             const db = createDatabase();
             assert.isObject(db);
@@ -133,7 +138,7 @@ describe('Database', () => {
             const db = createDatabase();
 
             await new Promise((resolve) => {
-                db.close(function() {
+                db.close(function () {
                     assert.ok(true);
                     resolve();
                 });
@@ -323,32 +328,32 @@ describe('Database', () => {
         });
 
         it('"push" function updates all current items if one item matches multiple similar ones (tradeoff if we cannot discern them))',
-           async () => {
-               const db = createDatabase();
+            async () => {
+                const db = createDatabase();
 
-               await db.push([newOutletItem, newOutletItemIdenticalOnDbLayer]).then(async (updates) => {
-                   assert.isObject(updates);
-                   assert.deepEqual(updates.priceUpdates.length, 0);
-                   assert.deepEqual(updates.newOffers.length, 2);
-                   assert.deepEqual(updates.newOffers[0], newOutletItem);
-                   assert.deepEqual(updates.newOffers[1], newOutletItemIdenticalOnDbLayer);
-                   assert.deepEqual(updates.offerIds.length, 2);
+                await db.push([newOutletItem, newOutletItemIdenticalOnDbLayer]).then(async (updates) => {
+                    assert.isObject(updates);
+                    assert.deepEqual(updates.priceUpdates.length, 0);
+                    assert.deepEqual(updates.newOffers.length, 2);
+                    assert.deepEqual(updates.newOffers[0], newOutletItem);
+                    assert.deepEqual(updates.newOffers[1], newOutletItemIdenticalOnDbLayer);
+                    assert.deepEqual(updates.offerIds.length, 2);
 
-                   await db.updateCurrent(updates.offerIds);
-               });
+                    await db.updateCurrent(updates.offerIds);
+                });
 
-               await db.push([newOutletItem, newOutletItemIdenticalOnDbLayer]).then(async (updates) => {
-                   assert.isObject(updates);
-                   assert.deepEqual(updates.priceUpdates.length, 0);
-                   assert.deepEqual(updates.newOffers.length, 0);
-                   assert.deepEqual(updates.offerIds.length, 2);
+                await db.push([newOutletItem, newOutletItemIdenticalOnDbLayer]).then(async (updates) => {
+                    assert.isObject(updates);
+                    assert.deepEqual(updates.priceUpdates.length, 0);
+                    assert.deepEqual(updates.newOffers.length, 0);
+                    assert.deepEqual(updates.offerIds.length, 2);
 
-                   await db.updateCurrent(updates.offerIds);
-               });
+                    await db.updateCurrent(updates.offerIds);
+                });
 
-               await new Promise((resolve) => db.close(resolve));
-           });
-        
+                await new Promise((resolve) => db.close(resolve));
+            });
+
     });
 
     describe('Update current items', () => {

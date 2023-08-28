@@ -30,7 +30,7 @@ Dependencies:
 * Slack app integration called "Incoming WebHooks" to post to channels 
 
 ##### Install NodeJS:
-* OSX: `brew install node`
+* OSX: `brew install node yarn`
 * Ubuntu-like: `sudo apt-get install nodejs npm`
 * Raspbian (Raspbery Pi2 B+-Model):
    * Installation via "apt-get" is outdated
@@ -57,7 +57,8 @@ If needed, create an additional database user.
 As an example to create a "canyon" user with password "PinkiePie": 
 ```
 mysql -u root -p
-mysql> GRANT ALL PRIVILEGES ON *.* TO 'canyon'@'localhost' IDENTIFIED BY 'PinkiePie';
+mysql> CREATE USER 'canyon'@'localhost' IDENTIFIED BY 'PinkiePie';
+mysql> GRANT ALL PRIVILEGES ON *.* TO 'canyon'@'localhost'; 
 mysql> exit
 ```
 
@@ -89,12 +90,12 @@ Then enter the WebHook url and the channel name in `config.js`.
 ##### Install and run:
 Install:
 ```
-npm i
+yarn
 ```
 
 To make a first run (Do not notify about each deal it finds):
 ``` 
-npm run grabber-initial
+yarn grabber-initial
 ```
 
 To notify about each change in available items or prices, all subsequent runs would then use:
