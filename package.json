@@ -7,11 +7,12 @@
     "test": "nyc mocha \"test/**/*.mocha.js\"",
     "test-browser": "karma start",
     "check-format": "check-clang-format \"npm run format\"",
-    "format": "git-clang-format -f",
+    "format": "prettier --write ./",
     "lint": "eslint ./ --cache --ignore-pattern .gitignore",
     "precommit-msg": "echo 'Pre-commit checks ...' && exit 0",
     "grabber": "node src/grabber/main.js",
-    "grabber-initial": "node src/grabber/main.js --summary"
+    "grabber-initial": "node src/grabber/main.js --summary",
+    "prepare": "husky install"
   },
   "pre-commit": [
     "precommit-msg",
@@ -24,10 +25,8 @@
     "babel-polyfill": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
     "chai": "^4.2.0",
-    "clang-format": "^1.2.4",
     "eslint": "^4.19.1",
     "eslint-plugin-mocha": "^4.12.1",
-    "husky": "^0.14.3",
     "karma": "^2.0.5",
     "karma-chrome-launcher": "^2.2.0",
     "karma-mocha": "^1.3.0",
@@ -45,5 +44,13 @@
     "xmlhttprequest": "^1.8.0"
   },
   "author": "Tobias Hilbrich",
-  "license": "BSD-2-Clause"
+  "license": "BSD-2-Clause",
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
+    "prettier": "^3.0.2"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  }
 }
