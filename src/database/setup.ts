@@ -1,14 +1,16 @@
-'use strict';
+import { log } from '../util/logger.js';
+import { DatabaseInterface } from './database.js';
 
-const Logger = require('../util/logger');
-
-async function dropTables(query) {
+async function dropTables(query: DatabaseInterface['query']) {
   ['models', 'current', 'history'].forEach((name) => {
     query(`DROP TABLE ${name}`);
   });
 }
 
-function setup(query, wantsDropTables) {
+export function setupDatabase(
+  query: DatabaseInterface['query'],
+  wantsDropTables: boolean,
+) {
   if (wantsDropTables) {
     dropTables(query);
   }
@@ -42,7 +44,5 @@ function setup(query, wantsDropTables) {
       'lastSmallImgUrl VARCHAR(255),\n' +
       'UNIQUE (historyId)\n' +
       ')',
-  ).then(() => Logger.log('Ensured database setup'));
+  ).then(() => log('Ensured database setup'));
 }
-
-module.exports = setup;

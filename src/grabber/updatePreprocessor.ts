@@ -1,6 +1,6 @@
-'use strict';
+import { Item, PriceUpdate } from '../types.js';
 
-function isSimilarOutletItem(newItem, oldItem) {
+function isSimilarOutletItem(newItem: Item, oldItem: Item): boolean {
   if (newItem.permanent || oldItem.permanent) {
     return false;
   }
@@ -16,7 +16,17 @@ function isSimilarOutletItem(newItem, oldItem) {
   return true;
 }
 
-function preproces({ newOffers, soldOutItems, priceUpdates }) {
+export interface InventoryUpdate {
+  newOffers: Item[];
+  soldOutItems: Item[];
+  priceUpdates: PriceUpdate[];
+}
+
+export function preproces({
+  newOffers,
+  soldOutItems,
+  priceUpdates,
+}: InventoryUpdate): InventoryUpdate {
   newOffers = newOffers.filter((newItem) => {
     let isReallyNew = true;
     soldOutItems = soldOutItems.filter((soldItem) => {
@@ -28,6 +38,8 @@ function preproces({ newOffers, soldOutItems, priceUpdates }) {
             item: newItem,
             oldPrice: soldItem.price,
             newPrice: newItem.price,
+            isNew: false,
+            offerId: newItem.offerId,
           });
         }
 
@@ -45,5 +57,3 @@ function preproces({ newOffers, soldOutItems, priceUpdates }) {
     priceUpdates,
   };
 }
-
-module.exports = preproces;

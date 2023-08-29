@@ -1,9 +1,8 @@
-'use strict';
+import { Item, ShopQueryResult } from '../../types.js';
+import { log, warn } from '../../util/logger.js';
 
-const Logger = require('../../util/logger');
-
-function parseForTargets(targets, htmlBlob) {
-  const results = {};
+function parseForTargets(targets: ParsingTarget[], htmlBlob: string) {
+  const results: { [key: string]: string[] } = {};
   targets.forEach(({ name: targetName }) => {
     results[targetName] = [];
   });
@@ -16,12 +15,13 @@ function parseForTargets(targets, htmlBlob) {
       matchWhat = '[^"/]',
       endDelimiter = '["|/]',
     }) => {
-      let names =
-        htmlBlob.match(
-          new RegExp(regexp + `["|/]?${matchWhat}*${endDelimiter}`, 'g'),
-        ) || [];
-      names = names.filter((name) => !name.match('"[Cc][Aa][Nn][Yy][Oo][Nn]"'));
-      names = names.map((hit) => {
+      const rawNames = htmlBlob.match(
+        new RegExp(regexp + `["|/]?${matchWhat}*${endDelimiter}`, 'g'),
+      );
+      const filteredNames = rawNames.filter(
+        (name) => !name.match('"[Cc][Aa][Nn][Yy][Oo][Nn]"'),
+      );
+      const names = filteredNames.map((hit) => {
         let temp = hit.replace(regexp, '').replace(/"/g, '');
 
         if (!keepSlashes) {
@@ -47,7 +47,7 @@ function parseForTargets(targets, htmlBlob) {
     });
   }
 
-  Logger.log(
+  log(
     `Filtered canyon data: ${firstTarget}.length=${results[firstTarget].length}`,
   );
 
@@ -55,7 +55,7 @@ function parseForTargets(targets, htmlBlob) {
   targets.forEach(({ name: targetName }) => {
     const message = `Failed parsing outlet data ${firstTarget}.length=${targetLength} ${targetName}.length=${results[targetName].length}`;
     if (results[targetName].length > targetLength) {
-      Logger.warn(message);
+      warn(message);
     } else if (results[targetName].length < targetLength) {
       throw new Error(message);
     }
@@ -64,8 +64,16 @@ function parseForTargets(targets, htmlBlob) {
   return results;
 }
 
-function processOutletData(htmlBlob) {
-  const targets = [
+interface ParsingTarget {
+  name: string;
+  regexp: string;
+  keepSlashes?: boolean;
+  matchWhat?: string;
+  endDelimiter?: string;
+}
+
+function processOutletData(htmlBlob: string): Item[] {
+  const targets: ParsingTarget[] = [
     { name: 'names', regexp: ', "name": ' },
     { name: 'prices', regexp: '"price": ' },
     { name: 'skus', regexp: '"sku": ' },
@@ -84,7 +92,7 @@ function processOutletData(htmlBlob) {
 
   const results = parseForTargets(targets, htmlBlob);
 
-  const returnValue = [];
+  const returnValue: Item[] = [];
   results.names.forEach((name, index) => {
     let finalName = name;
     if (!finalName.includes(results.years[index])) {
@@ -111,11 +119,11 @@ function processOutletData(htmlBlob) {
     });
   });
 
-  Logger.log('Parsed ' + returnValue.length + ' items, returning them');
+  log('Parsed ' + returnValue.length + ' items, returning them');
   return returnValue;
 }
 
-function parseForSmallImgUrls(htmlBlob) {
+function parseForSmallImgUrls(htmlBlob: string): string[] {
   const singleLineBlob = htmlBlob.replace(/[\r]?\n/g, ' ');
   const offerSections = singleLineBlob.split(/"image": "/g).slice(1);
   const smallImgUrls = offerSections.map((section) => {
@@ -141,7 +149,7 @@ function parseForSmallImgUrls(htmlBlob) {
   return smallImgUrls;
 }
 
-function processNormalOffer(htmlBlob) {
+function processNormalOffer(htmlBlob: string) {
   const targets = [
     { name: 'names', regexp: ', "name": ' },
     { name: 'prices', regexp: '"price": ' },
@@ -153,7 +161,7 @@ function processNormalOffer(htmlBlob) {
   const results = parseForTargets(targets, htmlBlob);
   const smallImgUrls = parseForSmallImgUrls(htmlBlob);
 
-  const returnValue = [];
+  const returnValue: Item[] = [];
   results.names.forEach((name, index) => {
     let finalName = name;
     if (!finalName.includes(results.years[index])) {
@@ -178,19 +186,19 @@ function processNormalOffer(htmlBlob) {
     });
   });
 
-  Logger.log('Parsed ' + returnValue.length + ' items, returning them');
+  log('Parsed ' + returnValue.length + ' items, returning them');
   return returnValue;
 }
 
-function parse({ type, data }) {
+export function parse({ type, data }: ShopQueryResult): Item[] {
+  if (!data) {
+    return [];
+  }
+
   switch (type) {
     case 'outlet':
       return processOutletData(data);
     case 'normalOffer':
       return processNormalOffer(data);
   }
-
-  throw new Error('Received unexpected parsing job');
 }
-
-module.exports = parse;

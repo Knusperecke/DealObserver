@@ -1,6 +1,6 @@
-'use strict';
+import { Config } from './types.js';
 
-module.exports = {
+export const defaultConfig: Config = {
   database: {
     host: 'localhost',
     user: 'canyon',
