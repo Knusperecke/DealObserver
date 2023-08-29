@@ -1,6 +1,7 @@
-'use strict';
+import { DatabaseHistoryModelJoin, Item } from '../types.js';
+import { DatabaseInterface } from './database.js';
 
-function buildValuesString(historyIds, withBraces) {
+function buildValuesString(historyIds: string[], withBraces: boolean): string {
   let ret = '';
   const leftBrace = withBraces ? '(' : '';
   const rightBrace = withBraces ? ')' : '';
@@ -14,11 +15,14 @@ function buildValuesString(historyIds, withBraces) {
   return ret;
 }
 
-function updateCurrent(query, newHistoryIds) {
-  let oldHistoryIds = [];
+export function updateCurrent(
+  query: DatabaseInterface['query'],
+  newHistoryIds: string[],
+): Promise<Item[]> {
+  let oldHistoryIds: string[] = [];
 
   return query('SELECT historyId FROM current')
-    .then((oldCurrentResult) => {
+    .then((oldCurrentResult: { historyId: string }[]) => {
       oldHistoryIds = oldCurrentResult.map((result) => result.historyId);
     })
     .then(() => query('DELETE FROM current'))
@@ -29,7 +33,7 @@ function updateCurrent(query, newHistoryIds) {
       }
     })
     .then(() => {
-      const lostHistoryIds = [];
+      const lostHistoryIds: string[] = [];
       oldHistoryIds.forEach((oldId) => {
         if (!newHistoryIds.includes(oldId)) {
           lostHistoryIds.push(oldId);
@@ -51,7 +55,7 @@ function updateCurrent(query, newHistoryIds) {
       }
       return [];
     })
-    .then((lostItemsQueryResult) => {
+    .then((lostItemsQueryResult: DatabaseHistoryModelJoin[]) => {
       return lostItemsQueryResult.map((result) => {
         return {
           name: result.name,
@@ -68,5 +72,3 @@ function updateCurrent(query, newHistoryIds) {
       });
     });
 }
-
-module.exports = updateCurrent;

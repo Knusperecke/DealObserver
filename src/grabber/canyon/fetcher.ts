@@ -1,33 +1,20 @@
-'use strict';
+import { Config, ShopQueryResult } from '../../types.js';
+import { HttpGetFunction, get } from '../../util/httpHelper.js';
+import { attachQueryHandler } from '../common.js';
 
-const XMLHttpRequestImpl = require('xmlhttprequest').XMLHttpRequest;
-const HttpHelper = require('../../util/httpHelper');
-const Logger = require('../../util/logger');
-
-function attachQueryHandler(query, url) {
-  return query
-    .catch(() => {
-      Logger.error('Failed to query url=', url);
-    })
-    .then((result) => {
-      Logger.log('Got data from remote url=', url);
-      return result;
-    });
-}
-
-function outlet(HttpGet) {
+function outlet(HttpGet: HttpGetFunction): Promise<ShopQueryResult>[] {
   const categories = ['triathlon', 'road'];
   const type = '&type=html';
   const baseUrl =
     'https://www.canyon.com/en/factory-outlet/ajax/articles.html?category=';
 
-  const openQueries = [];
+  const openQueries: Promise<ShopQueryResult>[] = [];
   categories.forEach((category) => {
     const url = baseUrl + category + type;
     openQueries.push(
-      attachQueryHandler(HttpGet(url, new XMLHttpRequestImpl()), url).then(
-        (data) => {
-          return { type: 'outlet', data: data };
+      attachQueryHandler(HttpGet(url, new XMLHttpRequest()), url).then(
+        (data: string | undefined) => {
+          return { type: 'outlet', data };
         },
       ),
     );
@@ -35,7 +22,7 @@ function outlet(HttpGet) {
   return openQueries;
 }
 
-function normalOffers(HttpGet) {
+function normalOffers(HttpGet: HttpGetFunction): Promise<ShopQueryResult>[] {
   const baseUrl = 'https://www.canyon.com/en/';
   const subUrls = [
     'road/aeroad/',
@@ -52,13 +39,13 @@ function normalOffers(HttpGet) {
     'triathlon/speedmax/cf/',
   ];
 
-  const openQueries = [];
+  const openQueries: Promise<ShopQueryResult>[] = [];
   subUrls.forEach((sub) => {
     const url = baseUrl + sub;
     openQueries.push(
-      attachQueryHandler(HttpGet(url, new XMLHttpRequestImpl()), url).then(
-        (data) => {
-          return { type: 'normalOffer', data: data };
+      attachQueryHandler(HttpGet(url, new XMLHttpRequest()), url).then(
+        (data: string | undefined) => {
+          return { type: 'normalOffer', data };
         },
       ),
     );
@@ -66,8 +53,9 @@ function normalOffers(HttpGet) {
   return openQueries;
 }
 
-function queries(config, HttpGet = HttpHelper.get) {
+export function fetcherQueries(
+  config: Config,
+  HttpGet = get,
+): Promise<ShopQueryResult>[] {
   return outlet(HttpGet).concat(normalOffers(HttpGet));
 }
-
-module.exports = queries;

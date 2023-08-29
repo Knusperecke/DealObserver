@@ -1,6 +1,11 @@
-'use strict';
-
-function get(url, requestImpl = new XMLHttpRequest()) {
+export type HttpGetFunction = (
+  url: string,
+  requestImpl: XMLHttpRequest,
+) => Promise<string>;
+export function get(
+  url: string,
+  requestImpl = new XMLHttpRequest(),
+): Promise<string> {
   return new Promise((resolve, reject) => {
     requestImpl.onreadystatechange = function () {
       if (requestImpl.readyState == 4) {
@@ -21,7 +26,16 @@ function get(url, requestImpl = new XMLHttpRequest()) {
   });
 }
 
-function post(url, body, requestImpl = new XMLHttpRequest()) {
+export type HttpPostFunction = (
+  url: string,
+  body: Document | XMLHttpRequestBodyInit,
+  requestImpl: XMLHttpRequest,
+) => Promise<string>;
+export function post(
+  url: string,
+  body: Document | XMLHttpRequestBodyInit,
+  requestImpl = new XMLHttpRequest(),
+): Promise<string> {
   return new Promise((resolve, reject) => {
     requestImpl.onreadystatechange = function () {
       if (requestImpl.readyState == 4) {
@@ -42,8 +56,3 @@ function post(url, body, requestImpl = new XMLHttpRequest()) {
     requestImpl.send(body);
   });
 }
-
-module.exports = {
-  get,
-  post,
-};

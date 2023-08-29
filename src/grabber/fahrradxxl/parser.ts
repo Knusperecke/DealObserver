@@ -1,23 +1,24 @@
-'use strict';
+import { Item, ShopQueryResult } from '../../types.js';
+import { log } from '../../util/logger.js';
 
-const Logger = require('../../util/logger');
+export function processItem({ data }: ShopQueryResult): Item[] {
+  const returnValue: Item[] = [];
 
-function processItem(htmlBlob = '') {
-  const returnValue = [];
+  if (!data) {
+    return returnValue;
+  }
 
   const nameMatch =
-    htmlBlob.match(`<meta itemprop="name" content="([^"]*)">`) || [];
+    data.match(`<meta itemprop="name" content="([^"]*)">`) || [];
   const priceMatch =
-    htmlBlob.match(`<div class="current-price">[^0-9]*([0-9.]*)`) || [];
-  const offerIdMatch = htmlBlob.match(`data-item="([^"]*)"`) || [];
-  let imgUrlMatch =
-    htmlBlob.match(
-      `<img.*src="([^"]*)" srcset="([^"]*) 1x,.*2x".*class="product_thumbnail__media">`,
-    ) || [];
-  const imgUrlMatchNewer =
-    htmlBlob.match(
-      `<img.*srcset="([^"]*) 1x,.*2x".*src="([^"]*)".*class="product_thumbnail__media">`,
-    ) || [];
+    data.match(`<div class="current-price">[^0-9]*([0-9.]*)`) || [];
+  const offerIdMatch = data.match(`data-item="([^"]*)"`) || [];
+  let imgUrlMatch: RegExpMatchArray | string[] = data.match(
+    `<img.*src="([^"]*)" srcset="([^"]*) 1x,.*2x".*class="product_thumbnail__media">`,
+  );
+  const imgUrlMatchNewer = data.match(
+    `<img.*srcset="([^"]*) 1x,.*2x".*src="([^"]*)".*class="product_thumbnail__media">`,
+  );
 
   if (imgUrlMatch.length === 0) {
     const end = imgUrlMatchNewer.splice(1).reverse();
@@ -53,8 +54,6 @@ function processItem(htmlBlob = '') {
     smallImgUrl: 'https://www.fahrrad-xxl.de' + imgUrlMatch[2].trim(),
   });
 
-  Logger.log('Parsed ' + returnValue.length + ' items, returning them');
+  log('Parsed ' + returnValue.length + ' items, returning them');
   return returnValue;
 }
-
-module.exports = processItem;
