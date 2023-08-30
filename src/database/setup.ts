@@ -1,38 +1,38 @@
 import { log } from '../util/logger.js';
 import { DatabaseInterface } from './database.js';
 
-async function dropTables(query: DatabaseInterface['query']) {
-  ['models', 'current', 'history'].forEach((name) => {
-    query(`DROP TABLE ${name}`);
-  });
+async function dropTables(query: DatabaseInterface['query']): Promise<void> {
+  await Promise.all(
+    ['items', 'current', 'history'].map((name) => query(`DROP TABLE ${name}`)),
+  );
 }
 
-export function setupDatabase(
+export async function setupDatabase(
   query: DatabaseInterface['query'],
   wantsDropTables: boolean,
-) {
+): Promise<void> {
   if (wantsDropTables) {
-    dropTables(query);
+    await dropTables(query);
   }
 
-  query(
-    'CREATE TABLE IF NOT EXISTS models (' +
-      'modelId INT NOT NULL AUTO_INCREMENT,' +
+  await query(
+    'CREATE TABLE IF NOT EXISTS items (' +
+      'itemId INT NOT NULL AUTO_INCREMENT,' +
       'nameId VARCHAR(255) NOT NULL,' +
       'name VARCHAR(255) NOT NULL,' +
       'modelYear INT,' +
-      'UNIQUE (modelId)' +
+      'UNIQUE (itemId)' +
       ')',
   );
 
-  query(
+  await query(
     'CREATE TABLE IF NOT EXISTS current (' + 'historyId INT NOT NULL' + ')',
   );
 
-  query(
+  await query(
     'CREATE TABLE IF NOT EXISTS history (\n' +
       'historyId INT NOT NULL AUTO_INCREMENT,\n' +
-      'modelId INT NOT NULL,\n' +
+      'itemId INT NOT NULL,\n' +
       'itemCondition VARCHAR(255),\n' +
       'isPermanent TINYINT,\n' +
       'size VARCHAR(64) NOT NULL,\n' +
@@ -44,5 +44,6 @@ export function setupDatabase(
       'lastSmallImgUrl VARCHAR(255),\n' +
       'UNIQUE (historyId)\n' +
       ')',
-  ).then(() => log('Ensured database setup'));
+  );
+  log('Ensured database setup');
 }

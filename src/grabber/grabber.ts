@@ -1,7 +1,6 @@
 import minimist from 'minimist';
 import { defaultConfig } from '../config.js';
 import { configOverride } from '../config.local.js';
-import { connectDatabase } from '../database/database.js';
 import { postError } from '../notifier/errors.js';
 import { notify } from '../notifier/notifier.js';
 import { fetcherQueries as canyonFetcherQueries } from './canyon/fetcher.js';
@@ -11,9 +10,10 @@ import { processItem as fahrradXxlParser } from './fahrradxxl/parser.js';
 import { preproces } from './updatePreprocessor.js';
 import { Config, Item, PriceUpdate } from '../types.js';
 import { log } from '../util/logger.js';
+import { connectDatabase } from '../database/database.js';
 
-export function runGrabber(
-  Database = connectDatabase,
+export async function runGrabber(
+  connectDatabaseFunction = connectDatabase,
   cycles = [
     { fetcher: canyonFetcherQueries, parser: canyonParse },
     { fetcher: fahrradXxlFetcherQueries, parser: fahrradXxlParser },
@@ -25,7 +25,7 @@ export function runGrabber(
 ) {
   const justSummary = minimist(process.argv.slice(2)).summary || false;
 
-  const db = Database(
+  const db = await connectDatabaseFunction(
     config.database.host,
     config.database.user,
     config.database.password,
@@ -61,11 +61,9 @@ export function runGrabber(
     })
     .then(() => db.updateCurrent(currentItemIds))
     .then((soldOutItemsUpdate) => (soldOutItems = soldOutItemsUpdate))
-    .then(() =>
-      db.close(() => {
-        log('Database was closed');
-      }),
-    )
+    .then(async () => {
+      await db.close();
+    })
     .then(() =>
       Notifier(
         Object.assign(

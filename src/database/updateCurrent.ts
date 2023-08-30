@@ -45,11 +45,11 @@ export function updateCurrent(
     .then((valuesString) => {
       if (valuesString !== '') {
         return query(
-          `SELECT models.name, models.nameId, models.modelYear, history.itemCondition,\n` +
+          `SELECT items.name, items.nameId, items.modelYear, history.itemCondition,\n` +
             `       history.isPermanent, history.size, history.lastSellerId, \n` +
             `       history.lastUrl, history.lastSmallImgUrl, history.price\n` +
             `FROM history\n` +
-            `INNER JOIN models ON models.modelId=history.modelId\n` +
+            `INNER JOIN items ON items.itemId=history.itemId\n` +
             `WHERE history.historyId IN (${valuesString})`,
         );
       }

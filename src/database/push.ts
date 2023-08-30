@@ -15,14 +15,14 @@ function getSqlDateTime(): string {
 function addNewItem(
   query: DatabaseInterface['query'],
   item: Item,
-  modelId: string,
+  itemId: number,
   permanent: boolean,
 ): Promise<DatabaseItemUpdate[]> {
   const dateTime = getSqlDateTime();
   return query(
-    `INSERT INTO history (modelId, itemCondition, isPermanent, size, price, durationFrom, durationTo,` +
+    `INSERT INTO history (itemId, itemCondition, isPermanent, size, price, durationFrom, durationTo,` +
       `                     lastSellerId, lastUrl, lastSmallImgUrl)\n` +
-      `  VALUES(${modelId}, '${item.condition}', ${permanent}, '${item.size}', ${item.price}, ` +
+      `  VALUES(${itemId}, '${item.condition}', ${permanent}, '${item.size}', ${item.price}, ` +
       `         '${dateTime}', '${dateTime}', '${item.offerId}', '${item.url}', '${item.smallImgUrl}');\n` +
       'SELECT LAST_INSERT_ID() AS id',
   ).then((insertQueryResult: { id: string }[][]) => {
@@ -35,7 +35,7 @@ function addNewItem(
 function updateExistingOffer(
   query: DatabaseInterface['query'],
   item: Item,
-  modelId: string,
+  itemId: number,
   historyId: string,
 ) {
   const currentDateTime = getSqlDateTime();
@@ -69,45 +69,45 @@ function pushItem(
   item: Item,
 ): Promise<DatabaseItemUpdate[]> {
   return query(
-    `SELECT modelId FROM models WHERE nameId='${item.id}' AND modelYear=${item.modelYear}`,
+    `SELECT itemId FROM items WHERE nameId='${item.id}' AND modelYear=${item.modelYear}`,
   )
     .then((modelQueryResult: DatabaseOfferItem[]) => {
       if (modelQueryResult.length) {
-        return modelQueryResult[0].modelId;
+        return modelQueryResult[0].itemId;
       }
 
       log(`Adding new model ${item.name}`);
       return query(
-        `INSERT INTO models (name, nameId, modelYear) VALUES ('${item.name}', '${item.id}', ${item.modelYear}); SELECT LAST_INSERT_ID() AS id`,
-      ).then((insertQueryResult: { id: string }[][]) => {
+        `INSERT INTO items (name, nameId, modelYear) VALUES ('${item.name}', '${item.id}', ${item.modelYear}); SELECT LAST_INSERT_ID() AS id`,
+      ).then((insertQueryResult: { id: number }[][]) => {
         return insertQueryResult[1][0].id;
       });
     })
-    .then((modelId) => {
+    .then((itemId: number) => {
       const permanent = item.permanent == true ? 1 : 0;
 
       return query(
         `SELECT current.historyId\n` +
           `FROM current\n` +
           `INNER JOIN history ON current.historyId=history.historyId\n` +
-          `WHERE history.modelId=${modelId}\n` +
+          `WHERE history.itemId=${itemId}\n` +
           `  AND history.isPermanent=${permanent}\n` +
           `  AND (history.isPermanent=1 OR history.price=${item.price})\n` +
           `  AND history.size='${item.size}'`,
       ).then((historyQueryResult: DatabaseHistoryItem[]) => {
-        return { historyQueryResult, modelId, permanent };
+        return { historyQueryResult, itemId, permanent };
       });
     })
-    .then(({ historyQueryResult, modelId, permanent }) => {
+    .then(({ historyQueryResult, itemId, permanent }) => {
       if (historyQueryResult.length) {
         return Promise.all(
           historyQueryResult.map((result) =>
-            updateExistingOffer(query, item, modelId, result.historyId),
+            updateExistingOffer(query, item, itemId, result.historyId),
           ),
         );
       }
 
-      return addNewItem(query, item, modelId, !!permanent);
+      return addNewItem(query, item, itemId, !!permanent);
     });
 }
 
