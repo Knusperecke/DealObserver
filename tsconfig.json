@@ -5,5 +5,5 @@
     "sourceMap": true,
     "outDir": "dist"
   },
-  "include": ["src/**/*.ts", "test/**/*.spec.ts"]
+  "include": ["src/**/*.ts", "test/**/*.mocha.ts"]
 }

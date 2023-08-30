@@ -50,7 +50,7 @@ export interface Item {
 }
 
 export interface DatabaseOfferItem extends Item {
-  modelId: string;
+  itemId: number;
 }
 
 export interface DatabaseHistoryModelJoin {
