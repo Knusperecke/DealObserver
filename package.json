@@ -20,6 +20,7 @@
     "build": "tsc --build"
   },
   "dependencies": {
+    "axios": "^1.5.0",
     "chai": "^4.3.8",
     "minimist": "^1.2.8",
     "mocha": "^10.2.0",
@@ -33,10 +34,14 @@
   "license": "BSD-2-Clause",
   "devDependencies": {
     "@types/chai": "^4.3.5",
+    "@types/chai-as-promised": "^7.1.5",
     "@types/minimist": "^1.2.2",
     "@types/mocha": "^10.0.1",
     "@types/mysql2": "types/mysql2",
     "@types/node": "^20.5.7",
+    "@types/sinon": "^10.0.16",
+    "axios-mock-adapter": "^1.21.5",
+    "chai-as-promised": "^7.1.1",
     "eslint": "^8.48.0",
     "eslint-plugin-mocha": "^10.1.0",
     "eslint-plugin-prettier": "^5.0.0",

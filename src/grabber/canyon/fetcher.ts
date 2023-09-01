@@ -1,28 +1,31 @@
 import { Config, ShopQueryResult } from '../../types.js';
-import { HttpGetFunction, get } from '../../util/httpHelper.js';
-import { attachQueryHandler } from '../common.js';
+import { error, log } from '../../util/logger.js';
+import axios from 'axios';
 
-function outlet(HttpGet: HttpGetFunction): Promise<ShopQueryResult>[] {
+function outlet(): Promise<ShopQueryResult>[] {
   const categories = ['triathlon', 'road'];
   const type = '&type=html';
   const baseUrl =
     'https://www.canyon.com/en/factory-outlet/ajax/articles.html?category=';
 
-  const openQueries: Promise<ShopQueryResult>[] = [];
-  categories.forEach((category) => {
+  return categories.map(async (category) => {
     const url = baseUrl + category + type;
-    openQueries.push(
-      attachQueryHandler(HttpGet(url, new XMLHttpRequest()), url).then(
-        (data: string | undefined) => {
-          return { type: 'outlet', data };
-        },
-      ),
-    );
+
+    try {
+      const queryResult = await axios.get(url);
+      log('Got data from remote url=', url);
+      return {
+        type: 'outlet',
+        data: queryResult.data as string,
+      } as ShopQueryResult;
+    } catch (error) {
+      error('Failed to query url=', url);
+      throw new Error(`Failed to query ${url} error ${JSON.stringify(error)}`);
+    }
   });
-  return openQueries;
 }
 
-function normalOffers(HttpGet: HttpGetFunction): Promise<ShopQueryResult>[] {
+function normalOffers(): Promise<ShopQueryResult>[] {
   const baseUrl = 'https://www.canyon.com/en/';
   const subUrls = [
     'road/aeroad/',
@@ -39,23 +42,23 @@ function normalOffers(HttpGet: HttpGetFunction): Promise<ShopQueryResult>[] {
     'triathlon/speedmax/cf/',
   ];
 
-  const openQueries: Promise<ShopQueryResult>[] = [];
-  subUrls.forEach((sub) => {
+  return subUrls.map(async (sub) => {
     const url = baseUrl + sub;
-    openQueries.push(
-      attachQueryHandler(HttpGet(url, new XMLHttpRequest()), url).then(
-        (data: string | undefined) => {
-          return { type: 'normalOffer', data };
-        },
-      ),
-    );
+
+    try {
+      const queryResult = await axios.get(url);
+      log('Got data from remote url=', url);
+      return {
+        type: 'normalOffer',
+        data: queryResult.data as string,
+      } as ShopQueryResult;
+    } catch {
+      error('Failed to query url=', url);
+      return { type: 'normalOffer', data: undefined } as ShopQueryResult;
+    }
   });
-  return openQueries;
 }
 
-export function fetcherQueries(
-  config: Config,
-  HttpGet = get,
-): Promise<ShopQueryResult>[] {
-  return outlet(HttpGet).concat(normalOffers(HttpGet));
+export function fetcherQueries(config: Config): Promise<ShopQueryResult>[] {
+  return outlet().concat(normalOffers());
 }
