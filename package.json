@@ -11,7 +11,7 @@
     "*.md"
   ],
   "scripts": {
-    "test": "yarn build && mocha \"dist/**/*.mocha.js\"",
+    "test": "yarn build && c8 --report-dir coverage mocha \"dist/**/*.mocha.js\"",
     "format": "prettier --write ./",
     "lint": "eslint ./ --cache --ignore-pattern .gitignore",
     "grabber": "node src/grabber/main.js",
@@ -26,7 +26,6 @@
     "mocha": "^10.2.0",
     "mysql2": "^3.6.0",
     "npm": "^9.8.1",
-    "nyc": "^15.1.0",
     "sinon": "^15.2.0",
     "xmlhttprequest": "^1.8.0"
   },
@@ -41,6 +40,7 @@
     "@types/node": "^20.5.7",
     "@types/sinon": "^10.0.16",
     "axios-mock-adapter": "^1.21.5",
+    "c8": "^8.0.1",
     "chai-as-promised": "^7.1.1",
     "eslint": "^8.48.0",
     "eslint-plugin-mocha": "^10.1.0",

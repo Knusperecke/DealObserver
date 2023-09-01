@@ -112,10 +112,6 @@ describe('Database', () => {
   }
 
   describe('Basic behaviour', () => {
-    it('creates initial tables', async () => {
-      await createDatabase(false);
-    });
-
     it('can close a newly created connection', async () => {
       const db = await createDatabase();
       await db.close();
