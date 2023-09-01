@@ -18,9 +18,9 @@ function parseForTargets(targets: ParsingTarget[], htmlBlob: string) {
       const rawNames = htmlBlob.match(
         new RegExp(regexp + `["|/]?${matchWhat}*${endDelimiter}`, 'g'),
       );
-      const filteredNames = rawNames.filter(
-        (name) => !name.match('"[Cc][Aa][Nn][Yy][Oo][Nn]"'),
-      );
+      const filteredNames =
+        rawNames?.filter((name) => !name.match('"[Cc][Aa][Nn][Yy][Oo][Nn]"')) ||
+        [];
       const names = filteredNames.map((hit) => {
         let temp = hit.replace(regexp, '').replace(/"/g, '');
 

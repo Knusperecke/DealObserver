@@ -3,7 +3,13 @@ import { DatabaseInterface } from './database.js';
 
 async function dropTables(query: DatabaseInterface['query']): Promise<void> {
   await Promise.all(
-    ['items', 'current', 'history'].map((name) => query(`DROP TABLE ${name}`)),
+    ['items', 'current', 'history'].map(async (name) => {
+      try {
+        await query(`DROP TABLE ${name}`);
+      } catch (error) {
+        log('Could not drop table, assuming it did not exist', { error, name });
+      }
+    }),
   );
 }
 
