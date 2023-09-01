@@ -3,7 +3,8 @@
     "module": "NodeNext",
     "noImplicitAny": true,
     "sourceMap": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "strict": true
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

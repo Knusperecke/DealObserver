@@ -47,13 +47,16 @@ export async function connectDatabase(
     log('Connected to database');
   });
 
-  const queryFunction = query.bind(this, connection);
+  const queryFunction: DatabaseInterface['query'] = query.bind(
+    globalThis,
+    connection,
+  );
 
   const db: DatabaseInterface = {
     query: queryFunction,
-    close: close.bind(this, connection),
-    push: push.bind(this, queryFunction),
-    updateCurrent: updateCurrent.bind(this, queryFunction),
+    close: close.bind(globalThis, connection),
+    push: push.bind(globalThis, queryFunction),
+    updateCurrent: updateCurrent.bind(globalThis, queryFunction),
   };
 
   await setupDatabase(db.query, dropTables);

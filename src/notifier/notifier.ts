@@ -26,7 +26,7 @@ async function postNewsEntry(
   numSoldOutItems: number,
   config: Config,
   HttpPost: HttpPostFunction,
-): Promise<string> {
+): Promise<void> {
   if (
     config.slack.newsChannelName === '' ||
     (numNewOffers === 0 && numPriceUpdates === 0 && numSoldOutItems === 0)
@@ -51,7 +51,7 @@ async function postNewsEntry(
 
   const text = '*Update:* ' + sentenice(pieces);
 
-  return HttpPost(
+  await HttpPost(
     config.slack.newsWebHook,
     JSON.stringify({
       channel: config.slack.newsChannelName,

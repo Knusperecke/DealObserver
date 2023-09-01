@@ -12,103 +12,93 @@ function getSqlDateTime(): string {
   return new Date().toISOString().slice(0, 19).replace('T', ' ');
 }
 
-function addNewItem(
+async function addNewItem(
   query: DatabaseInterface['query'],
   item: Item,
   itemId: number,
   permanent: boolean,
 ): Promise<DatabaseItemUpdate[]> {
   const dateTime = getSqlDateTime();
-  return query(
+  const insertQueryResult = (await query(
     `INSERT INTO history (itemId, itemCondition, isPermanent, size, price, durationFrom, durationTo,` +
       `                     lastSellerId, lastUrl, lastSmallImgUrl)\n` +
       `  VALUES(${itemId}, '${item.condition}', ${permanent}, '${item.size}', ${item.price}, ` +
       `         '${dateTime}', '${dateTime}', '${item.offerId}', '${item.url}', '${item.smallImgUrl}');\n` +
       'SELECT LAST_INSERT_ID() AS id',
-  ).then((insertQueryResult: { id: string }[][]) => {
-    const historyId = insertQueryResult[1][0].id;
-    log(`Added new history item id=${historyId}`);
-    return [{ item, isNew: true, newPrice: item.price, offerId: historyId }];
-  });
+  )) as { id: string }[][];
+
+  const historyId = insertQueryResult[1][0].id;
+  log(`Added new history item id=${historyId}`);
+  return [{ item, isNew: true, newPrice: item.price, offerId: historyId }];
 }
 
-function updateExistingOffer(
+async function updateExistingOffer(
   query: DatabaseInterface['query'],
   item: Item,
   itemId: number,
   historyId: string,
 ) {
   const currentDateTime = getSqlDateTime();
-  return query(
+  const priceQueryResult = (await query(
     `SELECT price\n` + `FROM history\n` + `WHERE historyId=${historyId}`,
-  )
-    .then(
-      (priceQueryResult: DatabaseHistoryItem[]) => priceQueryResult[0].price,
-    )
-    .then((oldPrice) => {
-      return query(
-        `UPDATE history\n` +
-          `SET durationTo='${currentDateTime}', lastSellerId='${item.offerId}', lastUrl='${item.url}',` +
-          `    price=${item.price}, lastSmallImgUrl='${item.smallImgUrl}'\n` +
-          `WHERE historyId=${historyId}\n`,
-      ).then(() => {
-        log(`Updated item historyId=${historyId}`);
-        return {
-          item,
-          isNew: false,
-          oldPrice: oldPrice,
-          newPrice: item.price,
-          offerId: historyId,
-        };
-      });
-    });
+  )) as DatabaseHistoryItem[];
+  const oldPrice = priceQueryResult[0].price;
+  await query(
+    `UPDATE history\n` +
+      `SET durationTo='${currentDateTime}', lastSellerId='${item.offerId}', lastUrl='${item.url}',` +
+      `    price=${item.price}, lastSmallImgUrl='${item.smallImgUrl}'\n` +
+      `WHERE historyId=${historyId}\n`,
+  );
+
+  log(`Updated item historyId=${historyId}`);
+  return {
+    item,
+    isNew: false,
+    oldPrice: oldPrice,
+    newPrice: item.price,
+    offerId: historyId,
+  };
 }
 
-function pushItem(
+async function pushItem(
   query: DatabaseInterface['query'],
   item: Item,
 ): Promise<DatabaseItemUpdate[]> {
-  return query(
+  const modelQueryResult = (await query(
     `SELECT itemId FROM items WHERE nameId='${item.id}' AND modelYear=${item.modelYear}`,
-  )
-    .then((modelQueryResult: DatabaseOfferItem[]) => {
-      if (modelQueryResult.length) {
-        return modelQueryResult[0].itemId;
-      }
+  )) as DatabaseOfferItem[];
 
-      log(`Adding new model ${item.name}`);
-      return query(
-        `INSERT INTO items (name, nameId, modelYear) VALUES ('${item.name}', '${item.id}', ${item.modelYear}); SELECT LAST_INSERT_ID() AS id`,
-      ).then((insertQueryResult: { id: number }[][]) => {
-        return insertQueryResult[1][0].id;
-      });
-    })
-    .then((itemId: number) => {
-      const permanent = item.permanent == true ? 1 : 0;
+  let itemId: number;
+  if (modelQueryResult.length) {
+    itemId = modelQueryResult[0].itemId;
+  } else {
+    log(`Adding new model ${item.name}`);
+    const insertQueryResult = (await query(
+      `INSERT INTO items (name, nameId, modelYear) VALUES ('${item.name}', '${item.id}', ${item.modelYear}); SELECT LAST_INSERT_ID() AS id`,
+    )) as { id: number }[][];
+    itemId = insertQueryResult[1][0].id;
+  }
+  const permanent = item.permanent == true ? 1 : 0;
 
-      return query(
-        `SELECT current.historyId\n` +
-          `FROM current\n` +
-          `INNER JOIN history ON current.historyId=history.historyId\n` +
-          `WHERE history.itemId=${itemId}\n` +
-          `  AND history.isPermanent=${permanent}\n` +
-          `  AND (history.isPermanent=1 OR history.price=${item.price})\n` +
-          `  AND history.size='${item.size}'`,
-      ).then((historyQueryResult: DatabaseHistoryItem[]) => {
-        return { historyQueryResult, itemId, permanent };
-      });
-    })
-    .then(({ historyQueryResult, itemId, permanent }) => {
-      if (historyQueryResult.length) {
-        return Promise.all(
-          historyQueryResult.map((result) =>
-            updateExistingOffer(query, item, itemId, result.historyId),
-          ),
-        );
-      }
+  const historyQueryResult = (await query(
+    `SELECT current.historyId\n` +
+      `FROM current\n` +
+      `INNER JOIN history ON current.historyId=history.historyId\n` +
+      `WHERE history.itemId=${itemId}\n` +
+      `  AND history.isPermanent=${permanent}\n` +
+      `  AND (history.isPermanent=1 OR history.price=${item.price})\n` +
+      `  AND history.size='${item.size}'`,
+  )) as DatabaseHistoryItem[];
 
-      return addNewItem(query, item, itemId, !!permanent);
-    });
+  if (historyQueryResult.length) {
+    return Promise.all(
+      historyQueryResult.map((result) =>
+        updateExistingOffer(query, item, itemId, result.historyId),
+      ),
+    );
+  }
+
+  return addNewItem(query, item, itemId, !!permanent);
 }
 
 export interface PushResult {

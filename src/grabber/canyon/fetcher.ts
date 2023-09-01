@@ -18,9 +18,11 @@ function outlet(): Promise<ShopQueryResult>[] {
         type: 'outlet',
         data: queryResult.data as string,
       } as ShopQueryResult;
-    } catch (error) {
+    } catch (thrownError) {
       error('Failed to query url=', url);
-      throw new Error(`Failed to query ${url} error ${JSON.stringify(error)}`);
+      throw new Error(
+        `Failed to query ${url} error ${JSON.stringify(thrownError)}`,
+      );
     }
   });
 }
