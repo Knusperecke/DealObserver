@@ -1,31 +1,30 @@
+import axios from 'axios';
 import { Config, ShopQueryResult } from '../../types.js';
-import { HttpGetFunction, get } from '../../util/httpHelper.js';
-import { attachQueryHandler } from '../common.js';
+import { error, log } from '../../util/logger.js';
 
-function watchedItems(
-  config: Config,
-  HttpGet: HttpGetFunction,
-): Promise<ShopQueryResult>[] {
+function watchedItems(config: Config): Promise<ShopQueryResult>[] {
   const baseUrl = config.fahrradxxl.baseUrl;
   const subUrls = config.fahrradxxl.itemsToWatch;
 
-  const openQueries: Promise<ShopQueryResult>[] = [];
-  subUrls.forEach((sub) => {
+  return subUrls.map(async (sub) => {
     const url = baseUrl + '/' + sub;
-    openQueries.push(
-      attachQueryHandler(HttpGet(url, new XMLHttpRequest()), url).then(
-        (data: string | undefined) => {
-          return { type: 'normalOffer', data };
-        },
-      ),
-    );
+
+    try {
+      const queryResult = await axios.get(url);
+      log('Got data from remote url=', url);
+      return {
+        type: 'normalOffer',
+        data: queryResult.data,
+      } as ShopQueryResult;
+    } catch (thrownError) {
+      error('Failed to query url=', url);
+      throw new Error(
+        `Failed to query ${url} error ${JSON.stringify(thrownError)}`,
+      );
+    }
   });
-  return openQueries;
 }
 
-export function fetcherQueries(
-  config: Config,
-  HttpGet = get,
-): Promise<ShopQueryResult>[] {
-  return watchedItems(config, HttpGet);
+export function fetcherQueries(config: Config): Promise<ShopQueryResult>[] {
+  return watchedItems(config);
 }
