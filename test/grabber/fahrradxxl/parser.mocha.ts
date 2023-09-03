@@ -1,14 +1,12 @@
-'use strict';
-
-const Parser = require('../../../src/grabber/fahrradxxl/parser');
-const assert = require('chai').assert;
+import { assert } from 'chai';
+import { processItem } from '../../../src/grabber/fahrradxxl/parser.js';
 
 describe('FahrradXXL parser', () => {
-    it('Returns an empty array for empty input', () => {
-        assert.deepEqual(Parser(''), []);
+    it('returns an empty array for empty input', () => {
+        assert.deepEqual(processItem({ type: 'normalOffer', data: '' }), []);
     });
 
-    it('Grabs an item from the input', () => {
+    it('grabs an item from the input', () => {
         const input = `<div itemscope="" itemtype="http://schema.org/Product" class="product et_sticky_limiter">
             <meta itemprop="brand" content="Radler">
             <meta itemprop="name" content="Buntes Rad mit vielen Klingeln">
@@ -46,10 +44,10 @@ describe('FahrradXXL parser', () => {
             condition: 'NewCondition',
         };
 
-        assert.deepEqual(Parser(input), [expectedItem]);
+        assert.deepEqual(processItem({ type: 'normalOffer', data: input }), [expectedItem]);
     });
 
-    it('Grabs an item from newer form of input', () => {
+    it('grabs an item from newer form of input', () => {
         const input = `<div itemscope="" itemtype="http://schema.org/Product" class="product et_sticky_limiter">
             <meta itemprop="brand" content="Radler">
             <meta itemprop="name" content="Buntes Rad mit vielen Klingeln">
@@ -87,15 +85,18 @@ describe('FahrradXXL parser', () => {
             condition: 'NewCondition',
         };
 
-        assert.deepEqual(Parser(input), [expectedItem]);
+        assert.deepEqual(processItem({ type: 'normalOffer', data: input }), [expectedItem]);
     });
 
-    it('Aborts for incomplete data', () => {
+    it('aborts for incomplete data', () => {
         const input = `<div itemscope="" itemtype="http://schema.org/Product" class="product et_sticky_limiter">
         <meta itemprop="brand" content="Radler">
         <meta itemprop="name" content="Buntes Rad mit vielen Klingeln">
         <div class="product__thumbnail product_thumbnail">`;
 
-        assert.throws(Parser.bind(Parser, input), 'Failed to parse an item');
+        assert.throws(
+            () => processItem({ type: 'normalOffer', data: input }),
+            'Failed to parse an item',
+        );
     });
 });
