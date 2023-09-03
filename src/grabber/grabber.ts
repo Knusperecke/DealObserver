@@ -9,7 +9,7 @@ import { fetcherQueries as fahrradXxlFetcherQueries } from './fahrradxxl/fetcher
 import { processItem as fahrradXxlParser } from './fahrradxxl/parser.js';
 import { preproces } from './updatePreprocessor.js';
 import { Config, Item, PriceUpdate } from '../types.js';
-import { log } from '../util/logger.js';
+import { error, log } from '../util/logger.js';
 import { connectDatabase } from '../database/database.js';
 
 export async function runGrabber(
@@ -72,6 +72,6 @@ export async function runGrabber(
                 }),
             ),
         )
-        .catch((error) => ErrorNotifier(error, config))
-        .catch((error) => error(error.message));
+        .catch((thrownError) => ErrorNotifier(thrownError, config))
+        .catch((thrownError) => error(thrownError.message));
 }

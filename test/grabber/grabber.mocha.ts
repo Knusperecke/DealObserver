@@ -1,11 +1,26 @@
-'use strict';
-
-const Grabber = require('../../src/grabber/grabber');
-const sinon = require('sinon');
-const assert = require('chai').assert;
+import { assert } from 'chai';
+import sinon from 'sinon';
+import { createTestConfig } from './make-config.js';
+import { Config } from '../../src/types.js';
+import { DatabaseInterface } from '../../src/database/database.js';
+import { runGrabber } from '../../src/grabber/grabber.js';
 
 describe('Grabber', () => {
-    let config = {};
+    let config: {
+        closeDatabase: sinon.SinonSpy<any[], any>;
+        grabberConfig: Config;
+        push: sinon.SinonStub<any[], any>;
+        updateCurrent: sinon.SinonStub<any[], any>;
+        databaseMock: sinon.SinonStub<
+            [string, string, string, string, boolean | undefined],
+            Promise<DatabaseInterface>
+        >;
+        fetcherMock: sinon.SinonStub<any[], any>;
+        parserMock: sinon.SinonStub<any[], any>;
+        notifierMock: sinon.SinonSpy<any[], any>;
+        errorNotifierMock: sinon.SinonSpy<any[], any>;
+        updatePreprocessorMock: sinon.SinonStub<any[], any>;
+    };
     function createGrabber({
         fetcherMock = sinon.stub().returns([]),
         parserMock = sinon.stub().returns([]),
@@ -16,24 +31,30 @@ describe('Grabber', () => {
             .stub()
             .returns({ newOffers: [], soldOutItems: [], priceUpdates: [] }),
     }) {
-        config.closeDatabase = sinon.spy();
-        config.push = pushMock;
-        config.updateCurrent = updateCurrentMock;
-        config.databaseMock = sinon.stub().returns({
-            close: config.closeDatabase,
-            push: config.push,
-            updateCurrent: config.updateCurrent,
-        });
-        config.fetcherMock = fetcherMock;
-        config.parserMock = parserMock;
-        config.notifierMock = sinon.spy();
-        config.errorNotifierMock = errorNotifierMock;
-        config.updatePreprocessorMock = updatePreprocessorMock;
-        config.grabberConfig = {
-            database: { host: '', user: '', password: '', table: '' },
+        const closeDatabaseSpy = sinon.spy();
+        config = {
+            closeDatabase: closeDatabaseSpy,
+            push: pushMock,
+            updateCurrent: updateCurrentMock,
+            databaseMock: sinon
+                .stub<[string, string, string, string, boolean | undefined]>()
+                .returns({
+                    close: closeDatabaseSpy,
+                    push: pushMock,
+                    updateCurrent: updateCurrentMock,
+                }),
+            fetcherMock: fetcherMock,
+            parserMock: parserMock,
+            notifierMock: sinon.spy(),
+            errorNotifierMock: errorNotifierMock,
+            updatePreprocessorMock: updatePreprocessorMock,
+            grabberConfig: {
+                ...createTestConfig(),
+                database: { host: '', user: '', password: '', table: '', testTable: '' },
+            },
         };
 
-        return Grabber(
+        return runGrabber(
             config.databaseMock,
             [
                 {
@@ -48,16 +69,16 @@ describe('Grabber', () => {
         );
     }
 
-    it.skip('Debugging target via mocha', () => {
-        Grabber();
+    it.skip('debugging target via mocha', () => {
+        runGrabber();
     });
 
-    it('Provides a function to run', () => {
-        assert.isFunction(Grabber);
+    it('provides a function to run', () => {
+        assert.isFunction(runGrabber);
     });
 
-    describe('Database handling', () => {
-        it('Creates and closes the database', async () => {
+    describe('database handling', () => {
+        it('creates and closes the database', async () => {
             await createGrabber({});
 
             assert.ok(config.databaseMock.called);
@@ -65,8 +86,8 @@ describe('Grabber', () => {
         });
     });
 
-    describe('Data flow', () => {
-        it('Passes fetcher results to parser', async () => {
+    describe('data flow', () => {
+        it('passes fetcher results to parser', async () => {
             const expectedData = 'data';
             const fetcherMock = sinon.stub().returns([Promise.resolve(expectedData)]);
             await createGrabber({ fetcherMock });
@@ -74,7 +95,7 @@ describe('Grabber', () => {
             assert.ok(config.parserMock.calledWith(expectedData));
         });
 
-        it('Passes parser results to database.push', async () => {
+        it('passes parser results to database.push', async () => {
             const expectedData = 'data';
             const fetcherMock = sinon.stub().returns([Promise.resolve()]);
             const parserMock = sinon.stub().returns(Promise.resolve(expectedData));
@@ -83,7 +104,7 @@ describe('Grabber', () => {
             assert.ok(config.push.calledWith([expectedData]));
         });
 
-        it('Passes offerIds from database.push to database.updateCurrent', async () => {
+        it('passes offerIds from database.push to database.updateCurrent', async () => {
             const fetcherMock = sinon.stub().returns([Promise.resolve()]);
             const parserMock = sinon.stub().returns(Promise.resolve());
             const pushMock = sinon
@@ -94,7 +115,7 @@ describe('Grabber', () => {
             assert.ok(config.updateCurrent.calledWith([123]));
         });
 
-        it('Passes offerIds from distinct database.push calls to database.updateCurrent', async () => {
+        it('passes offerIds from distinct database.push calls to database.updateCurrent', async () => {
             const expectedOfferIds = [123, 456];
             const fetcherMock = sinon.stub().returns([Promise.resolve(), Promise.resolve()]);
             const parserMock = sinon.stub().returns(Promise.resolve());
@@ -110,7 +131,7 @@ describe('Grabber', () => {
             assert.ok(config.updateCurrent.calledWith(expectedOfferIds));
         });
 
-        it('Passes new offers to updatePreprocessor', async () => {
+        it('passes new offers to updatePreprocessor', async () => {
             const fetcherMock = sinon.stub().returns([Promise.resolve()]);
             const parserMock = sinon.stub().returns(Promise.resolve());
             const pushMock = sinon
@@ -127,7 +148,7 @@ describe('Grabber', () => {
             );
         });
 
-        it('Passes new offers from distinct push calls to updatePreprocessor', async () => {
+        it('passes new offers from distinct push calls to updatePreprocessor', async () => {
             const expectedNewOffers = [123, 456];
             const fetcherMock = sinon.stub().returns([Promise.resolve(), Promise.resolve()]);
             const parserMock = sinon.stub().returns(Promise.resolve());
@@ -152,7 +173,7 @@ describe('Grabber', () => {
             );
         });
 
-        it('Passes price updates to updatePreprocessor', async () => {
+        it('passes price updates to updatePreprocessor', async () => {
             const fetcherMock = sinon.stub().returns([Promise.resolve()]);
             const parserMock = sinon.stub().returns(Promise.resolve());
             const pushMock = sinon
@@ -169,7 +190,7 @@ describe('Grabber', () => {
             );
         });
 
-        it('Passes price updates from distinct push calls to updatePreprocessor', async () => {
+        it('passes price updates from distinct push calls to updatePreprocessor', async () => {
             const expectedPriceUpdates = [123, 456];
             const fetcherMock = sinon.stub().returns([Promise.resolve(), Promise.resolve()]);
             const parserMock = sinon.stub().returns(Promise.resolve());
@@ -194,7 +215,7 @@ describe('Grabber', () => {
             );
         });
 
-        it('Passes items that disappeared to updatePreprocessor', async () => {
+        it('passes items that disappeared to updatePreprocessor', async () => {
             const expectedItem = 'item';
 
             const fetcherMock = sinon.stub().returns([Promise.resolve()]);
@@ -219,7 +240,7 @@ describe('Grabber', () => {
             );
         });
 
-        it('Passes multiple items that disappeared to updatePreprocessor', async () => {
+        it('passes multiple items that disappeared to updatePreprocessor', async () => {
             const expectedItems = ['item1', 'item2'];
 
             const fetcherMock = sinon.stub().returns([Promise.resolve()]);
@@ -244,7 +265,7 @@ describe('Grabber', () => {
             );
         });
 
-        it('Passes return value of updatePreprocessor to notifier', async () => {
+        it('passes return value of updatePreprocessor to notifier', async () => {
             const fetcherMock = sinon.stub().returns([Promise.resolve()]);
             const parserMock = sinon.stub().returns(Promise.resolve());
             const pushMock = sinon
@@ -268,14 +289,14 @@ describe('Grabber', () => {
         });
     });
 
-    describe('Error handling', () => {
-        it('Catches errors during the data flow', async () => {
+    describe('error handling', () => {
+        it('catches errors during the data flow', async () => {
             const fetcherMock = sinon.stub().returns([Promise.resolve()]);
             const parserMock = sinon.stub().returns(Promise.reject(new Error('Parsing failed')));
             await createGrabber({ fetcherMock, parserMock });
         });
 
-        it('Forwards catched errors to notifier', async () => {
+        it('forwards catched errors to notifier', async () => {
             const expectedError = new Error('Parsing failed');
 
             const fetcherMock = sinon.stub().returns([Promise.resolve()]);
@@ -285,7 +306,7 @@ describe('Grabber', () => {
             assert.ok(config.errorNotifierMock.calledWith(expectedError));
         });
 
-        it('Forwards catched errors to notifier', async () => {
+        it('forwards catched errors to notifier and handles notifier errors', async () => {
             const expectedError = new Error('Notifying of error failed');
 
             const fetcherMock = sinon.stub().returns([Promise.resolve()]);
