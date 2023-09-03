@@ -1,58 +1,58 @@
 {
-  "name": "canyon-grabber",
-  "version": "1.1.0",
-  "description": "Catch deals and price changes",
-  "main": "built/src/index.js",
-  "types": "built/src/index.d.ts",
-  "type": "module",
-  "files": [
-    "built/src",
-    "built/*.json",
-    "*.md"
-  ],
-  "scripts": {
-    "test": "yarn build && c8 --report-dir coverage mocha \"dist/**/*.mocha.js\"",
-    "format": "prettier --write ./",
-    "lint": "eslint ./ --cache --ignore-pattern .gitignore",
-    "grabber": "node src/grabber/main.js",
-    "grabber-initial": "node src/grabber/main.js --summary",
-    "prepare": "husky install",
-    "build": "tsc --build"
-  },
-  "dependencies": {
-    "axios": "^1.5.0",
-    "chai": "^4.3.8",
-    "minimist": "^1.2.8",
-    "mocha": "^10.2.0",
-    "mysql2": "^3.6.0",
-    "npm": "^9.8.1",
-    "sinon": "^15.2.0",
-    "xmlhttprequest": "^1.8.0"
-  },
-  "author": "Tobias Hilbrich",
-  "license": "BSD-2-Clause",
-  "devDependencies": {
-    "@types/chai": "^4.3.5",
-    "@types/chai-as-promised": "^7.1.5",
-    "@types/minimist": "^1.2.2",
-    "@types/mocha": "^10.0.1",
-    "@types/mysql2": "types/mysql2",
-    "@types/node": "^20.5.7",
-    "@types/sinon": "^10.0.16",
-    "axios-mock-adapter": "^1.21.5",
-    "c8": "^8.0.1",
-    "chai-as-promised": "^7.1.1",
-    "eslint": "^8.48.0",
-    "eslint-plugin-mocha": "^10.1.0",
-    "eslint-plugin-prettier": "^5.0.0",
-    "esm": "^3.2.25",
-    "husky": "^8.0.3",
-    "lint-staged": "^14.0.1",
-    "prettier": "^3.0.2",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
-  },
-  "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
-  }
+    "name": "canyon-grabber",
+    "version": "1.1.0",
+    "description": "Catch deals and price changes",
+    "main": "built/src/index.js",
+    "types": "built/src/index.d.ts",
+    "type": "module",
+    "files": [
+        "built/src",
+        "built/*.json",
+        "*.md"
+    ],
+    "scripts": {
+        "test": "yarn build && c8 --report-dir coverage mocha \"dist/**/*.mocha.js\"",
+        "format": "prettier --write ./",
+        "lint": "eslint ./ --cache --ignore-pattern .gitignore",
+        "grabber": "node src/grabber/main.js",
+        "grabber-initial": "node src/grabber/main.js --summary",
+        "prepare": "husky install",
+        "build": "tsc --build"
+    },
+    "dependencies": {
+        "axios": "^1.5.0",
+        "chai": "^4.3.8",
+        "minimist": "^1.2.8",
+        "mocha": "^10.2.0",
+        "mysql2": "^3.6.0",
+        "npm": "^9.8.1",
+        "sinon": "^15.2.0",
+        "xmlhttprequest": "^1.8.0"
+    },
+    "author": "Tobias Hilbrich",
+    "license": "BSD-2-Clause",
+    "devDependencies": {
+        "@types/chai": "^4.3.5",
+        "@types/chai-as-promised": "^7.1.5",
+        "@types/minimist": "^1.2.2",
+        "@types/mocha": "^10.0.1",
+        "@types/mysql2": "types/mysql2",
+        "@types/node": "^20.5.7",
+        "@types/sinon": "^10.0.16",
+        "axios-mock-adapter": "^1.21.5",
+        "c8": "^8.0.1",
+        "chai-as-promised": "^7.1.1",
+        "eslint": "^8.48.0",
+        "eslint-plugin-mocha": "^10.1.0",
+        "eslint-plugin-prettier": "^5.0.0",
+        "esm": "^3.2.25",
+        "husky": "^8.0.3",
+        "lint-staged": "^14.0.1",
+        "prettier": "^3.0.2",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.2.2"
+    },
+    "lint-staged": {
+        "**/*": "prettier --write --ignore-unknown"
+    }
 }

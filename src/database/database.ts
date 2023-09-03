@@ -7,59 +7,56 @@ import { updateCurrent } from './updateCurrent.js';
 import { setupDatabase } from './setup.js';
 
 function close(connection: MySql.Connection): Promise<void> {
-  return new Promise((resolve) => {
-    connection.end((error) => {
-      if (error) {
-        throw new Error(`Failed to close database connection error="${error}"`);
-      }
-      log('Closed database');
-      resolve();
+    return new Promise((resolve) => {
+        connection.end((error) => {
+            if (error) {
+                throw new Error(`Failed to close database connection error="${error}"`);
+            }
+            log('Closed database');
+            resolve();
+        });
     });
-  });
 }
 
 export interface DatabaseInterface {
-  query: (queryBody: string) => Promise<unknown[]>;
-  close: () => Promise<void>;
-  push: (items: Item[]) => Promise<PushResult>;
-  updateCurrent: (newHistoryIds: string[]) => Promise<Item[]>;
+    query: (queryBody: string) => Promise<unknown[]>;
+    close: () => Promise<void>;
+    push: (items: Item[]) => Promise<PushResult>;
+    updateCurrent: (newHistoryIds: string[]) => Promise<Item[]>;
 }
 
 export async function connectDatabase(
-  host: string,
-  user: string,
-  password: string,
-  databaseName: string,
-  dropTables = false,
+    host: string,
+    user: string,
+    password: string,
+    databaseName: string,
+    dropTables = false,
 ): Promise<DatabaseInterface> {
-  const connection = MySql.createConnection({
-    host: host,
-    user: user,
-    password: password,
-    database: databaseName,
-    multipleStatements: true,
-  });
-  connection.connect((error) => {
-    if (error) {
-      throw new Error('Failed in database connection: ' + error);
-    }
+    const connection = MySql.createConnection({
+        host: host,
+        user: user,
+        password: password,
+        database: databaseName,
+        multipleStatements: true,
+    });
+    connection.connect((error) => {
+        if (error) {
+            throw new Error('Failed in database connection: ' + error);
+        }
 
-    log('Connected to database');
-  });
+        log('Connected to database');
+    });
 
-  const queryFunction: DatabaseInterface['query'] = query.bind(
-    globalThis,
-    connection,
-  );
+    const queryFunction: DatabaseInterface['query'] = query.bind(globalThis, connection);
 
-  const db: DatabaseInterface = {
-    query: queryFunction,
-    close: close.bind(globalThis, connection),
-    push: push.bind(globalThis, queryFunction),
-    updateCurrent: updateCurrent.bind(globalThis, queryFunction),
-  };
+    const db: DatabaseInterface = {
+        query: queryFunction,
+        close: close.bind(globalThis, connection),
+        push: push.bind(globalThis, queryFunction),
+        updateCurrent: updateCurrent.bind(globalThis, queryFunction),
+    };
 
-  await setupDatabase(db.query, dropTables);
+    await setupDatabase(db.query, dropTables);
 
-  return db;
+    return db;
 }
