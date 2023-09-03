@@ -29,7 +29,7 @@ describe('Canyon fetcherQueries', () => {
 
   it('handles failing promises (failing http gets)', () => {
     axiosMock.onGet(/.*www[.]canyon[.]com.*/).reply(404);
-    return assert.isRejected(Promise.all(fetcherQueries(config)), 'error');
+    return assert.isRejected(Promise.all(fetcherQueries(config)), '404');
   });
 
   it('wraps the returned data in an object with "type" and "data"', async () => {

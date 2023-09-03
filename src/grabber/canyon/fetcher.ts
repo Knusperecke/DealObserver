@@ -16,7 +16,7 @@ function outlet(): Promise<ShopQueryResult>[] {
       log('Got data from remote url=', url);
       return {
         type: 'outlet',
-        data: queryResult.data as string,
+        data: queryResult.data,
       } as ShopQueryResult;
     } catch (thrownError) {
       error('Failed to query url=', url);
