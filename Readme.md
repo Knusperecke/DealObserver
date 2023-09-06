@@ -4,13 +4,21 @@ Want to observe new deals on [canyon.com](https://www.canyon.com/en/),
 without refreshing the site again and again?
 Then this tool automates the task for you and provides you with notifications via [Slack](https://slack.com/).
 
+## History and Status
+
+This little project started when I was learning Javascript.
+A key goal of the initial design was to engage with a more functional programming style.
+I later on picked this project up just to see how the code has evolved and to see what I would do differently.
+As part of this I moved the project to TypeScript and modernized some of the code.
+I left the functional style mostly intact.
+
 ## You are Here!
 
 Current features:
 
-- Fetch offers from the website
-- Put them into a database
-- Send out notifications
+-   Fetch offers from the website
+-   Put them into a database
+-   Send out notifications
 
 This is not a service!
 The project provides you an executable that fetches updates and notifies you.
@@ -28,23 +36,23 @@ Want to support this? Be welcome, there is a developers section at the end.
 
 Dependencies:
 
-- NodeJS to run this
-- MySQL to store information persistently
-- Slack app integration called "Incoming WebHooks" to post to channels
+-   NodeJS to run this
+-   MySQL to store information persistently
+-   Slack app integration called "Incoming WebHooks" to post to channels
 
 ##### Install NodeJS:
 
-- OSX: `brew install node yarn`
-- Ubuntu-like: `sudo apt-get install nodejs npm`
-- Raspbian (Raspbery Pi2 B+-Model):
-  - Installation via "apt-get" is outdated
-  - Download recent package from NodeJS website (Armv6)
-  - Unpack, put into PATH
-  - You may have to run `sudo apt-get update && apt-get install gcc-4.8 g++-4.8` to make it work
+-   OSX: `brew install node yarn`
+-   Ubuntu-like: `sudo apt-get install nodejs npm`
+-   Raspbian (Raspbery Pi2 B+-Model):
+    -   Installation via "apt-get" is outdated
+    -   Download recent package from NodeJS website (Armv6)
+    -   Unpack, put into PATH
+    -   You may have to run `sudo apt-get update && apt-get install gcc-4.8 g++-4.8` to make it work
 
 ##### Database setup:
 
-- OSX:
+-   OSX:
 
 ```
 brew install mysql
@@ -52,7 +60,7 @@ brew services start mysql
 mysql_secure_installation
 ```
 
-- Ubuntu-like:
+-   Ubuntu-like:
 
 ```
 sudo apt-get install mysql-server
@@ -86,11 +94,11 @@ mysql> exit
 Open Slack, create a workspace if needed.
 Create the channels you would like to have, you can receive notification streams for:
 
-- `priceUpdates`: Summarizes prices that changed (permanent offers mostly),
-- `newOffers`: Lists new deals and permanent offers,
-- `soldOut`: Highlights deals that disappeared,
-- `news`: Summary for what is put into the above three channels, and
-- `debug`: If something fails, deal observer will try to post the error there.
+-   `priceUpdates`: Summarizes prices that changed (permanent offers mostly),
+-   `newOffers`: Lists new deals and permanent offers,
+-   `soldOut`: Highlights deals that disappeared,
+-   `news`: Summary for what is put into the above three channels, and
+-   `debug`: If something fails, deal observer will try to post the error there.
 
 Where each notification stream goes, is configured in `config.js`.
 A single channel can receive multiple notification streams.
@@ -140,11 +148,11 @@ Currently all dependencies are installed, feel free to sort out dev dependencies
 
 To contribute, you would:
 
-- Create your branch,
-- Make your changes,
-- Run `npm test` to see that your contributions work and hopefully improve test coverage,
-- Run `npm run lint` to ensure no obvious errors are present,
-- Run `npm format` to get things into a somewhat common shape, and then
-- Commit, push, and so forth.
+-   Create your branch,
+-   Make your changes,
+-   Run `npm test` to see that your contributions work and hopefully improve test coverage,
+-   Run `npm run lint` to ensure no obvious errors are present,
+-   Run `npm format` to get things into a somewhat common shape, and then
+-   Commit, push, and so forth.
 
 Happy programming!

@@ -9,7 +9,7 @@ export function query(connection: Connection, queryBody: string): Promise<unknow
                 return;
             }
             log('Query successful');
-            if (!(results as any).length) {
+            if (!(results as Array<unknown>).length) {
                 resolve([]);
             }
             resolve(results as Array<unknown>);

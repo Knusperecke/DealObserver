@@ -6,17 +6,17 @@ import { fetcherQueries } from '../../../src/grabber/fahrradxxl/fetcher.js';
 import { assert } from 'chai';
 
 describe('FahrradXXL fetcher', () => {
-    let config: Config = {
-        ...createTestConfig(),
-        fahrradxxl: {
-            baseUrl: 'https://www.somewhere.com',
-            itemsToWatch: ['a', 'b'],
-        },
-    };
-
+    let config: Config;
     let axiosMock: MockAdapter;
 
     beforeEach(() => {
+        config = {
+            ...createTestConfig(),
+            fahrradxxl: {
+                baseUrl: 'https://www.somewhere.com',
+                itemsToWatch: ['a', 'b'],
+            },
+        };
         axiosMock = new MockAdapter(axios);
     });
 

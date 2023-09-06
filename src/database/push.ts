@@ -20,8 +20,8 @@ async function addNewItem(
 ): Promise<DatabaseItemUpdate[]> {
     const dateTime = getSqlDateTime();
     const insertQueryResult = (await query(
-        `INSERT INTO history (itemId, itemCondition, isPermanent, size, price, durationFrom, durationTo,` +
-            `                     lastSellerId, lastUrl, lastSmallImgUrl)\n` +
+        'INSERT INTO history (itemId, itemCondition, isPermanent, size, price, durationFrom, durationTo,' +
+            '                     lastSellerId, lastUrl, lastSmallImgUrl)\n' +
             `  VALUES(${itemId}, '${item.condition}', ${permanent}, '${item.size}', ${item.price}, ` +
             `         '${dateTime}', '${dateTime}', '${item.offerId}', '${item.url}', '${item.smallImgUrl}');\n` +
             'SELECT LAST_INSERT_ID() AS id',
@@ -40,11 +40,11 @@ async function updateExistingOffer(
 ) {
     const currentDateTime = getSqlDateTime();
     const priceQueryResult = (await query(
-        `SELECT price\n` + `FROM history\n` + `WHERE historyId=${historyId}`,
+        'SELECT price\n' + 'FROM history\n' + `WHERE historyId=${historyId}`,
     )) as DatabaseHistoryItem[];
     const oldPrice = priceQueryResult[0].price;
     await query(
-        `UPDATE history\n` +
+        'UPDATE history\n' +
             `SET durationTo='${currentDateTime}', lastSellerId='${item.offerId}', lastUrl='${item.url}',` +
             `    price=${item.price}, lastSmallImgUrl='${item.smallImgUrl}'\n` +
             `WHERE historyId=${historyId}\n`,
@@ -81,9 +81,9 @@ async function pushItem(
     const permanent = item.permanent == true ? 1 : 0;
 
     const historyQueryResult = (await query(
-        `SELECT current.historyId\n` +
-            `FROM current\n` +
-            `INNER JOIN history ON current.historyId=history.historyId\n` +
+        'SELECT current.historyId\n' +
+            'FROM current\n' +
+            'INNER JOIN history ON current.historyId=history.historyId\n' +
             `WHERE history.itemId=${itemId}\n` +
             `  AND history.isPermanent=${permanent}\n` +
             `  AND (history.isPermanent=1 OR history.price=${item.price})\n` +

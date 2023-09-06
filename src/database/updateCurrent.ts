@@ -40,11 +40,11 @@ export async function updateCurrent(
     let lostItemsQueryResult: DatabaseHistoryModelJoin[] = [];
     if (lostValuesString !== '') {
         lostItemsQueryResult = (await query(
-            `SELECT items.name, items.nameId, items.modelYear, history.itemCondition,\n` +
-                `       history.isPermanent, history.size, history.lastSellerId, \n` +
-                `       history.lastUrl, history.lastSmallImgUrl, history.price\n` +
-                `FROM history\n` +
-                `INNER JOIN items ON items.itemId=history.itemId\n` +
+            'SELECT items.name, items.nameId, items.modelYear, history.itemCondition,\n' +
+                '       history.isPermanent, history.size, history.lastSellerId, \n' +
+                '       history.lastUrl, history.lastSmallImgUrl, history.price\n' +
+                'FROM history\n' +
+                'INNER JOIN items ON items.itemId=history.itemId\n' +
                 `WHERE history.historyId IN (${lostValuesString})`,
         )) as DatabaseHistoryModelJoin[];
     }

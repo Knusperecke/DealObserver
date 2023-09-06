@@ -128,7 +128,7 @@ function parseForSmallImgUrls(htmlBlob: string): string[] {
         );
         const smallImgUrls = parseForSmallImgResult.smallImgUrls;
         if (smallImgUrls.length < 1) {
-            throw new Error(`Could not find small img in section`);
+            throw new Error('Could not find small img in section');
         }
         return smallImgUrls[0];
     });

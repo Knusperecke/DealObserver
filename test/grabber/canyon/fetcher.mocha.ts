@@ -9,10 +9,11 @@ chai.use(chaiAsPromised);
 const assert = chai.assert;
 
 describe('Canyon fetcherQueries', () => {
-    let config: Config = createTestConfig();
+    let config: Config;
     let axiosMock: MockAdapter;
 
     beforeEach(() => {
+        config = createTestConfig();
         axiosMock = new MockAdapter(axios);
     });
 
