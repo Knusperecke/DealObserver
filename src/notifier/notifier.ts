@@ -1,5 +1,5 @@
+import axios from 'axios';
 import { Config, PriceUpdate, Item } from '../types.js';
-import { HttpPostFunction, post } from '../util/httpHelper.js';
 import { log } from '../util/logger.js';
 
 function addPluralS(count: number): string {
@@ -25,7 +25,6 @@ async function postNewsEntry(
     numPriceUpdates: number,
     numSoldOutItems: number,
     config: Config,
-    HttpPost: HttpPostFunction,
 ): Promise<void> {
     if (
         config.slack.newsChannelName === '' ||
@@ -47,25 +46,17 @@ async function postNewsEntry(
 
     const text = '*Update:* ' + sentenice(pieces);
 
-    await HttpPost(
-        config.slack.newsWebHook,
-        JSON.stringify({
-            channel: config.slack.newsChannelName,
-            username: config.slack.notifierUserName,
-            text: text.trim(),
-            icon_emoji: config.slack.notifierEmoji,
-        }),
-        new XMLHttpRequest(),
-    );
+    await axios.post(config.slack.newsWebHook, {
+        channel: config.slack.newsChannelName,
+        username: config.slack.notifierUserName,
+        text: text.trim(),
+        icon_emoji: config.slack.notifierEmoji,
+    });
 }
 
-function postSoldOutItems(
-    soldOutItems: Item[],
-    config: Config,
-    HttpPost: HttpPostFunction,
-): Promise<string[]> {
+async function postSoldOutItems(soldOutItems: Item[], config: Config): Promise<void> {
     if (config.slack.soldOutChannelName === '') {
-        return Promise.resolve([]);
+        return;
     }
 
     const promises = soldOutItems.map((item) => {
@@ -75,36 +66,28 @@ function postSoldOutItems(
             attachmentText = attachmentText + ` size ${item.size} condition ${item.condition}`;
         }
 
-        return HttpPost(
-            config.slack.soldOutWebHook,
-            JSON.stringify({
-                channel: config.slack.soldOutChannelName,
-                username: config.slack.notifierUserName,
-                text: 'Sold out:',
-                icon_emoji: config.slack.soldOutEmoji,
-                attachments: [
-                    {
-                        color: '#FF8888',
-                        text: attachmentText,
-                        image_url: item.smallImgUrl || '',
-                        footer: '=> ' + item.url || '',
-                    },
-                ],
-            }),
-            new XMLHttpRequest(),
-        );
+        return axios.post(config.slack.soldOutWebHook, {
+            channel: config.slack.soldOutChannelName,
+            username: config.slack.notifierUserName,
+            text: 'Sold out:',
+            icon_emoji: config.slack.soldOutEmoji,
+            attachments: [
+                {
+                    color: '#FF8888',
+                    text: attachmentText,
+                    image_url: item.smallImgUrl || '',
+                    footer: '=> ' + item.url || '',
+                },
+            ],
+        });
     });
 
-    return Promise.all(promises);
+    await Promise.all(promises);
 }
 
-function postNewOffers(
-    newOffers: Item[],
-    config: Config,
-    HttpPost: HttpPostFunction,
-): Promise<string[]> {
+async function postNewOffers(newOffers: Item[], config: Config): Promise<void> {
     if (config.slack.newOffersChannelName === '') {
-        return Promise.resolve([]);
+        return;
     }
 
     const promises = newOffers.map((item) => {
@@ -116,34 +99,26 @@ function postNewOffers(
             attachmentText = attachmentText + ` size *${item.size}* condition *${item.condition}*`;
         }
 
-        return HttpPost(
-            config.slack.newOffersWebHook,
-            JSON.stringify({
-                channel: config.slack.newOffersChannelName,
-                username: config.slack.notifierUserName,
-                text: text.trim(),
-                icon_emoji: config.slack.notifierEmoji,
-                attachments: [
-                    {
-                        color: '#88FF88',
-                        text: attachmentText,
-                        image_url: item.smallImgUrl || '',
-                        footer: '=> ' + item.url || '',
-                    },
-                ],
-            }),
-            new XMLHttpRequest(),
-        );
+        return axios.post(config.slack.newOffersWebHook, {
+            channel: config.slack.newOffersChannelName,
+            username: config.slack.notifierUserName,
+            text: text.trim(),
+            icon_emoji: config.slack.notifierEmoji,
+            attachments: [
+                {
+                    color: '#88FF88',
+                    text: attachmentText,
+                    image_url: item.smallImgUrl || '',
+                    footer: '=> ' + item.url || '',
+                },
+            ],
+        });
     });
 
-    return Promise.all(promises);
+    await Promise.all(promises);
 }
 
-function postPriceUpdates(
-    priceUpdates: PriceUpdate[],
-    config: Config,
-    HttpPost: HttpPostFunction,
-): Promise<string[]> {
+async function postPriceUpdates(priceUpdates: PriceUpdate[], config: Config): Promise<void> {
     const promises = priceUpdates.map(({ item, oldPrice, newPrice }) => {
         const webHookToUse =
             item.permanent === true
@@ -155,7 +130,7 @@ function postPriceUpdates(
                 : config.slack.priceUpdatesOutletChannelName;
 
         if (webHookToUse === '') {
-            return Promise.resolve('');
+            return;
         }
 
         const text = 'Price change:';
@@ -171,65 +146,49 @@ function postPriceUpdates(
             Math.abs(100 - (newPrice * 100) / oldPrice).toFixed(2) +
             '%*';
 
-        return HttpPost(
-            webHookToUse,
-            JSON.stringify({
-                channel: channelNameToUse,
-                username: config.slack.notifierUserName,
-                text: text.trim(),
-                icon_emoji: config.slack.notifierEmoji,
-                attachments: [
-                    {
-                        color: '#8888FF',
-                        text: attachmentText,
-                        image_url: item.smallImgUrl || '',
-                        footer: '=> ' + item.url || '',
-                        fields: [
-                            { title: 'New', value: newPrice, short: true },
-                            { title: 'Old', value: oldPrice, short: true },
-                        ],
-                    },
-                ],
-            }),
-            new XMLHttpRequest(),
-        );
+        return axios.post(webHookToUse, {
+            channel: channelNameToUse,
+            username: config.slack.notifierUserName,
+            text: text.trim(),
+            icon_emoji: config.slack.notifierEmoji,
+            attachments: [
+                {
+                    color: '#8888FF',
+                    text: attachmentText,
+                    image_url: item.smallImgUrl || '',
+                    footer: '=> ' + item.url || '',
+                    fields: [
+                        { title: 'New', value: newPrice, short: true },
+                        { title: 'Old', value: oldPrice, short: true },
+                    ],
+                },
+            ],
+        });
     });
 
-    return Promise.all(promises);
+    await Promise.all(promises);
 }
 
-export function notify(
-    {
-        newOffers,
-        priceUpdates,
-        soldOutItems,
-        justSummary,
-        config,
-    }: {
-        newOffers: Item[];
-        priceUpdates: PriceUpdate[];
-        soldOutItems: Item[];
-        justSummary: boolean;
-        config: Config;
-    },
-    HttpPost = post,
-) {
-    return postNewsEntry(
-        newOffers.length,
-        priceUpdates.length,
-        soldOutItems.length,
-        config,
-        HttpPost,
-    )
-        .then(() => {
-            let ret: Promise<string[]> = Promise.resolve([]);
+export function notify({
+    newOffers,
+    priceUpdates,
+    soldOutItems,
+    justSummary,
+    config,
+}: {
+    newOffers: Item[];
+    priceUpdates: PriceUpdate[];
+    soldOutItems: Item[];
+    justSummary: boolean;
+    config: Config;
+}) {
+    return postNewsEntry(newOffers.length, priceUpdates.length, soldOutItems.length, config)
+        .then(async () => {
             if (!justSummary) {
-                ret = ret
-                    .then(() => postSoldOutItems(soldOutItems, config, HttpPost))
-                    .then(() => postNewOffers(newOffers, config, HttpPost))
-                    .then(() => postPriceUpdates(priceUpdates, config, HttpPost));
+                await postSoldOutItems(soldOutItems, config);
+                await postNewOffers(newOffers, config);
+                await postPriceUpdates(priceUpdates, config);
             }
-            return ret;
         })
         .then(() => log('Finished notification handling'));
 }

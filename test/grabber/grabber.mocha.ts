@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import sinon from 'sinon';
-import { createTestConfig } from './make-config.js';
+import { createTestConfig } from '../make-config.js';
 import { Config } from '../../src/types.js';
 import { DatabaseInterface } from '../../src/database/database.js';
 import { runGrabber } from '../../src/grabber/grabber.js';

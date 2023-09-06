@@ -1,5 +1,5 @@
 import MockAdapter from 'axios-mock-adapter';
-import { createTestConfig } from '../make-config.js';
+import { createTestConfig } from '../../make-config.js';
 import { Config } from '../../../src/types.js';
 import axios from 'axios';
 import { fetcherQueries } from '../../../src/grabber/fahrradxxl/fetcher.js';

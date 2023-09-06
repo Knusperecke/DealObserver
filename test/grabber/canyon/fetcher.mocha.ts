@@ -1,5 +1,5 @@
 import { Config } from '../../../src/types.js';
-import { createTestConfig } from '../make-config.js';
+import { createTestConfig } from '../../make-config.js';
 import chai from 'chai';
 import { fetcherQueries } from '../../../src/grabber/canyon/fetcher.js';
 import MockAdapter from 'axios-mock-adapter';
