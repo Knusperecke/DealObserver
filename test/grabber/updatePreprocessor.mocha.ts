@@ -1,15 +1,14 @@
-'use strict';
+import { assert } from 'chai';
+import { preproces } from '../../src/grabber/updatePreprocessor.js';
+import { Item, InventoryUpdate, PriceUpdate } from '../../src/types.js';
 
-const UpdatePreprocessor = require('../../src/grabber/updatePreprocessor');
-const assert = require('chai').assert;
-
-const emptyUpdate = {
+const emptyUpdate: InventoryUpdate = {
     newOffers: [],
     soldOutItems: [],
     priceUpdates: [],
 };
 
-const permanentItem = {
+const permanentItem: Item = {
     name: 'Bike 2017',
     id: 'bike 2017',
     price: 1000,
@@ -22,7 +21,7 @@ const permanentItem = {
     condition: 'broken',
 };
 
-const outletItem = {
+const outletItem: Item = {
     name: 'Bike',
     id: 'bike 2017',
     price: 1000,
@@ -35,7 +34,7 @@ const outletItem = {
     condition: 'broken',
 };
 
-const outletItemDifferntlySpelledName = {
+const outletItemDifferntlySpelledName: Item = {
     name: 'BIKE',
     id: 'bike 2017',
     price: 1000,
@@ -48,7 +47,7 @@ const outletItemDifferntlySpelledName = {
     condition: 'broken',
 };
 
-const outletItemDifferentCondition = {
+const outletItemDifferentCondition: Item = {
     name: 'Bike',
     id: 'bike 2017',
     price: 1000,
@@ -61,7 +60,7 @@ const outletItemDifferentCondition = {
     condition: 'new',
 };
 
-const outletItemDifferentSize = {
+const outletItemDifferentSize: Item = {
     name: 'Bike',
     id: 'bike 2017',
     price: 1000,
@@ -74,7 +73,7 @@ const outletItemDifferentSize = {
     condition: 'broken',
 };
 
-const outletItemDifferentName = {
+const outletItemDifferentName: Item = {
     name: 'Another Bike',
     id: 'another bike 2017',
     price: 1000,
@@ -87,7 +86,7 @@ const outletItemDifferentName = {
     condition: 'broken',
 };
 
-const outletItemDifferentPrice = {
+const outletItemDifferentPrice: Item = {
     name: 'Bike',
     id: 'bike 2017',
     price: 999,
@@ -101,89 +100,89 @@ const outletItemDifferentPrice = {
 };
 
 describe('Canyon Preprocessor for Notifier Updates', () => {
-    it('Expects an object with "newOffers", "soldOutItems", and "priceUpdates"', () => {
-        assert.deepEqual(UpdatePreprocessor(emptyUpdate), emptyUpdate);
+    it('expects an object with "newOffers", "soldOutItems", and "priceUpdates"', () => {
+        assert.deepEqual(preproces(emptyUpdate), emptyUpdate);
     });
 
-    it('Does not do anything for new permanent items', () => {
-        const expectedUpdate = {
+    it('does not do anything for new permanent items', () => {
+        const expectedUpdate: InventoryUpdate = {
             newOffers: [permanentItem],
             soldOutItems: [],
             priceUpdates: [],
         };
-        assert.deepEqual(UpdatePreprocessor(expectedUpdate), expectedUpdate);
+        assert.deepEqual(preproces(expectedUpdate), expectedUpdate);
     });
 
-    it('Does not do anything for sold out permanent items', () => {
-        const expectedUpdate = {
+    it('does not do anything for sold out permanent items', () => {
+        const expectedUpdate: InventoryUpdate = {
             newOffers: [],
             soldOutItems: [permanentItem],
             priceUpdates: [],
         };
-        assert.deepEqual(UpdatePreprocessor(expectedUpdate), expectedUpdate);
+        assert.deepEqual(preproces(expectedUpdate), expectedUpdate);
     });
 
-    it('Does not do anything for a permanent new offers that is equal permanent sold out item', () => {
-        const expectedUpdate = {
+    it('does not do anything for a permanent new offers that is equal permanent sold out item', () => {
+        const expectedUpdate: InventoryUpdate = {
             newOffers: [permanentItem],
             soldOutItems: [permanentItem],
             priceUpdates: [],
         };
-        assert.deepEqual(UpdatePreprocessor(expectedUpdate), expectedUpdate);
+        assert.deepEqual(preproces(expectedUpdate), expectedUpdate);
     });
 
-    it('Removes the update if the item is both in newOffers and soldOutItems', () => {
-        const inputUpdate = {
+    it('removes the update if the item is both in newOffers and soldOutItems', () => {
+        const inputUpdate: InventoryUpdate = {
             newOffers: [outletItem],
             soldOutItems: [outletItem],
             priceUpdates: [],
         };
-        assert.deepEqual(UpdatePreprocessor(inputUpdate), emptyUpdate);
+        assert.deepEqual(preproces(inputUpdate), emptyUpdate);
     });
 
-    it('Removes the update if the item is both in newOffers and soldOutItems, name can be spelled differently, id must match', () => {
-        const inputUpdate = {
+    it('removes the update if the item is both in newOffers and soldOutItems, name can be spelled differently, id must match', () => {
+        const inputUpdate: InventoryUpdate = {
             newOffers: [outletItem],
             soldOutItems: [outletItemDifferntlySpelledName],
             priceUpdates: [],
         };
-        assert.deepEqual(UpdatePreprocessor(inputUpdate), emptyUpdate);
+        assert.deepEqual(preproces(inputUpdate), emptyUpdate);
     });
 
-    it('Removes the update if the item is both in newOffers and soldOutItems, even if it is in a different condition (condition from server can vary)', () => {
-        const inputUpdate = {
+    it('removes the update if the item is both in newOffers and soldOutItems, even if it is in a different condition (condition from server can vary)', () => {
+        const inputUpdate: InventoryUpdate = {
             newOffers: [outletItem],
             soldOutItems: [outletItemDifferentCondition],
             priceUpdates: [],
         };
-        assert.deepEqual(UpdatePreprocessor(inputUpdate), emptyUpdate);
+        assert.deepEqual(preproces(inputUpdate), emptyUpdate);
     });
 
-    it('Does not remove an update if the size of the item is different', () => {
-        const expectedUpdate = {
+    it('does not remove an update if the size of the item is different', () => {
+        const expectedUpdate: InventoryUpdate = {
             newOffers: [outletItem],
             soldOutItems: [outletItemDifferentSize],
             priceUpdates: [],
         };
-        assert.deepEqual(UpdatePreprocessor(expectedUpdate), expectedUpdate);
+        assert.deepEqual(preproces(expectedUpdate), expectedUpdate);
     });
 
-    it('Does not remove an update if the name of the item is different', () => {
-        const expectedUpdate = {
+    it('does not remove an update if the name of the item is different', () => {
+        const expectedUpdate: InventoryUpdate = {
             newOffers: [outletItem],
             soldOutItems: [outletItemDifferentName],
             priceUpdates: [],
         };
-        assert.deepEqual(UpdatePreprocessor(expectedUpdate), expectedUpdate);
+        assert.deepEqual(preproces(expectedUpdate), expectedUpdate);
     });
 
-    it('Computes a price update if the item is both in newOffers and soldOutItems, but with different price', () => {
-        const inputUpdate = {
+    it('computes a price update if the item is both in newOffers and soldOutItems, but with different price', () => {
+        const inputUpdate: InventoryUpdate = {
             newOffers: [outletItem],
             soldOutItems: [outletItemDifferentPrice],
             priceUpdates: [],
         };
-        const expectedUpdate = {
+        const expectedUpdate: InventoryUpdate = {
             newOffers: [],
             soldOutItems: [],
             priceUpdates: [
@@ -191,19 +190,21 @@ describe('Canyon Preprocessor for Notifier Updates', () => {
                     item: outletItem,
                     oldPrice: outletItemDifferentPrice.price,
                     newPrice: outletItem.price,
+                    isNew: false,
+                    offerId: outletItem.offerId,
                 },
             ],
         };
-        assert.deepEqual(UpdatePreprocessor(inputUpdate), expectedUpdate);
+        assert.deepEqual(preproces(inputUpdate), expectedUpdate);
     });
 
-    it('Computes multiple price updates', () => {
-        const inputUpdate = {
+    it('computes multiple price updates', () => {
+        const inputUpdate: InventoryUpdate = {
             newOffers: [outletItem, outletItem],
             soldOutItems: [outletItemDifferentPrice, outletItemDifferentPrice],
             priceUpdates: [],
         };
-        const expectedUpdate = {
+        const expectedUpdate: InventoryUpdate = {
             newOffers: [],
             soldOutItems: [],
             priceUpdates: [
@@ -211,24 +212,28 @@ describe('Canyon Preprocessor for Notifier Updates', () => {
                     item: outletItem,
                     oldPrice: outletItemDifferentPrice.price,
                     newPrice: outletItem.price,
+                    isNew: false,
+                    offerId: outletItem.offerId,
                 },
                 {
                     item: outletItem,
                     oldPrice: outletItemDifferentPrice.price,
                     newPrice: outletItem.price,
+                    isNew: false,
+                    offerId: outletItem.offerId,
                 },
             ],
         };
-        assert.deepEqual(UpdatePreprocessor(inputUpdate), expectedUpdate);
+        assert.deepEqual(preproces(inputUpdate), expectedUpdate);
     });
 
-    it('Computes a price update and keeps other new offers', () => {
-        const inputUpdate = {
+    it('computes a price update and keeps other new offers', () => {
+        const inputUpdate: InventoryUpdate = {
             newOffers: [permanentItem, outletItem],
             soldOutItems: [outletItemDifferentPrice],
             priceUpdates: [],
         };
-        const expectedUpdate = {
+        const expectedUpdate: InventoryUpdate = {
             newOffers: [permanentItem],
             soldOutItems: [],
             priceUpdates: [
@@ -236,19 +241,21 @@ describe('Canyon Preprocessor for Notifier Updates', () => {
                     item: outletItem,
                     oldPrice: outletItemDifferentPrice.price,
                     newPrice: outletItem.price,
+                    isNew: false,
+                    offerId: outletItem.offerId,
                 },
             ],
         };
-        assert.deepEqual(UpdatePreprocessor(inputUpdate), expectedUpdate);
+        assert.deepEqual(preproces(inputUpdate), expectedUpdate);
     });
 
-    it('Computes a price update and keeps other sold out items', () => {
-        const inputUpdate = {
+    it('computes a price update and keeps other sold out items', () => {
+        const inputUpdate: InventoryUpdate = {
             newOffers: [outletItem],
             soldOutItems: [outletItemDifferentPrice, permanentItem],
             priceUpdates: [],
         };
-        const expectedUpdate = {
+        const expectedUpdate: InventoryUpdate = {
             newOffers: [],
             soldOutItems: [permanentItem],
             priceUpdates: [
@@ -256,24 +263,28 @@ describe('Canyon Preprocessor for Notifier Updates', () => {
                     item: outletItem,
                     oldPrice: outletItemDifferentPrice.price,
                     newPrice: outletItem.price,
+                    isNew: false,
+                    offerId: outletItem.offerId,
                 },
             ],
         };
-        assert.deepEqual(UpdatePreprocessor(inputUpdate), expectedUpdate);
+        assert.deepEqual(preproces(inputUpdate), expectedUpdate);
     });
 
-    it('Computes a price update and keeps other price updates', () => {
-        const existingPriceUpdate = {
+    it('computes a price update and keeps other price updates', () => {
+        const existingPriceUpdate: PriceUpdate = {
             item: permanentItem,
             oldPrice: 123,
             newPrice: permanentItem.price,
+            isNew: false,
+            offerId: permanentItem.offerId,
         };
-        const inputUpdate = {
+        const inputUpdate: InventoryUpdate = {
             newOffers: [outletItem],
             soldOutItems: [outletItemDifferentPrice],
             priceUpdates: [existingPriceUpdate],
         };
-        const expectedUpdate = {
+        const expectedUpdate: InventoryUpdate = {
             newOffers: [],
             soldOutItems: [],
             priceUpdates: [
@@ -282,9 +293,11 @@ describe('Canyon Preprocessor for Notifier Updates', () => {
                     item: outletItem,
                     oldPrice: outletItemDifferentPrice.price,
                     newPrice: outletItem.price,
+                    isNew: false,
+                    offerId: outletItem.offerId,
                 },
             ],
         };
-        assert.deepEqual(UpdatePreprocessor(inputUpdate), expectedUpdate);
+        assert.deepEqual(preproces(inputUpdate), expectedUpdate);
     });
 });

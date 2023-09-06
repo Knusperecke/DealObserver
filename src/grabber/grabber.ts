@@ -18,9 +18,9 @@ export async function runGrabber(
         { fetcher: canyonFetcherQueries, parser: canyonParse },
         { fetcher: fahrradXxlFetcherQueries, parser: fahrradXxlParser },
     ],
-    UpdatePreprocessor = preproces,
-    Notifier = notify,
-    ErrorNotifier = postError,
+    updatePreprocessor = preproces,
+    notifier = notify,
+    errorNotifier = postError,
     config = { ...defaultConfig, ...configOverride } as Config,
 ) {
     const justSummary = minimist(process.argv.slice(2)).summary || false;
@@ -65,13 +65,13 @@ export async function runGrabber(
             await db.close();
         })
         .then(() =>
-            Notifier(
-                Object.assign(UpdatePreprocessor({ newOffers, priceUpdates, soldOutItems }), {
+            notifier(
+                Object.assign(updatePreprocessor({ newOffers, priceUpdates, soldOutItems }), {
                     justSummary,
                     config,
                 }),
             ),
         )
-        .catch((thrownError) => ErrorNotifier(thrownError, config))
+        .catch((thrownError) => errorNotifier(thrownError, config))
         .catch((thrownError) => error(thrownError.message));
 }

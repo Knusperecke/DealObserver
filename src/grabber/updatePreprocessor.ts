@@ -1,4 +1,4 @@
-import { Item, PriceUpdate } from '../types.js';
+import { InventoryUpdate, Item, PriceUpdate } from '../types.js';
 
 function isSimilarOutletItem(newItem: Item, oldItem: Item): boolean {
     if (newItem.permanent || oldItem.permanent) {
@@ -14,12 +14,6 @@ function isSimilarOutletItem(newItem: Item, oldItem: Item): boolean {
     }
 
     return true;
-}
-
-export interface InventoryUpdate {
-    newOffers: Item[];
-    soldOutItems: Item[];
-    priceUpdates: PriceUpdate[];
 }
 
 export function preproces({

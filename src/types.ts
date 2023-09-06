@@ -87,3 +87,9 @@ export interface ShopQueryResult {
     type: 'outlet' | 'normalOffer';
     data?: string;
 }
+
+export interface InventoryUpdate {
+    newOffers: Item[];
+    soldOutItems: Item[];
+    priceUpdates: PriceUpdate[];
+}

@@ -1,4 +1,4 @@
-import { Config } from '../../src/types.js';
+import { Config } from '../src/types.js';
 
 export function createTestConfig(): Config {
     return {
