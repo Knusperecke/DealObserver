@@ -58,6 +58,7 @@ function normalOffers(): Promise<ShopQueryResult>[] {
     });
 }
 
-export function fetcherQueries(config: Config): Promise<ShopQueryResult>[] {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function fetcherQueries(_config: Config): Promise<ShopQueryResult>[] {
     return outlet().concat(normalOffers());
 }

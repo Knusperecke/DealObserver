@@ -169,19 +169,21 @@ async function postPriceUpdates(priceUpdates: PriceUpdate[], config: Config): Pr
     await Promise.all(promises);
 }
 
+export interface NotifyConfig {
+    newOffers: Item[];
+    priceUpdates: PriceUpdate[];
+    soldOutItems: Item[];
+    justSummary: boolean;
+    config: Config;
+}
+
 export function notify({
     newOffers,
     priceUpdates,
     soldOutItems,
     justSummary,
     config,
-}: {
-    newOffers: Item[];
-    priceUpdates: PriceUpdate[];
-    soldOutItems: Item[];
-    justSummary: boolean;
-    config: Config;
-}) {
+}: NotifyConfig): Promise<void> {
     return postNewsEntry(newOffers.length, priceUpdates.length, soldOutItems.length, config)
         .then(async () => {
             if (!justSummary) {

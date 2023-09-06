@@ -11,7 +11,7 @@
         "*.md"
     ],
     "scripts": {
-        "test": "yarn build && c8 --report-dir coverage mocha \"dist/**/*.mocha.js\"",
+        "test": "yarn build && c8 --report-dir coverage mocha \"dist/**/*.mocha.js\" && yarn lint --fix",
         "test:integration": "yarn build && c8 --report-dir coverage mocha \"dist/**/*.integration.js\"",
         "format": "prettier --write ./",
         "lint": "eslint ./ --cache --ignore-pattern .gitignore",
@@ -27,8 +27,7 @@
         "mocha": "^10.2.0",
         "mysql2": "^3.6.0",
         "npm": "^9.8.1",
-        "sinon": "^15.2.0",
-        "xmlhttprequest": "^1.8.0"
+        "sinon": "^15.2.0"
     },
     "author": "Tobias Hilbrich",
     "license": "BSD-2-Clause",
@@ -40,6 +39,8 @@
         "@types/mysql2": "types/mysql2",
         "@types/node": "^20.5.7",
         "@types/sinon": "^10.0.16",
+        "@typescript-eslint/eslint-plugin": "^6.5.0",
+        "@typescript-eslint/parser": "^6.5.0",
         "axios-mock-adapter": "^1.21.5",
         "c8": "^8.0.1",
         "chai-as-promised": "^7.1.1",

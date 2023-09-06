@@ -1,4 +1,4 @@
-import { InventoryUpdate, Item, PriceUpdate } from '../types.js';
+import { InventoryUpdate, Item } from '../types.js';
 
 function isSimilarOutletItem(newItem: Item, oldItem: Item): boolean {
     if (newItem.permanent || oldItem.permanent) {
