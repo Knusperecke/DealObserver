@@ -2,16 +2,22 @@ import { Config, ShopQueryResult } from '../../types.js';
 import { error, log } from '../../util/logger.js';
 import axios from 'axios';
 
-function outlet(): Promise<ShopQueryResult>[] {
-    const categories = ['triathlon', 'road'];
+export function outlet(): Promise<ShopQueryResult>[] {
+    const categories = ['Road', 'Triathlon'];
     const type = '&type=html';
-    const baseUrl = 'https://www.canyon.com/en/factory-outlet/ajax/articles.html?category=';
+    const baseUrl =
+        'https://www.canyon.com/en-de/outlet-bikes/?prefn1=pc_welt&showFilters=false&format=ajax&srule=outlet_high_stock&searchredirect=false&searchType=bikes&start=0&sz=1000&prefv1=';
 
     return categories.map(async (category) => {
         const url = baseUrl + category + type;
 
         try {
-            const queryResult = await axios.get(url);
+            const queryResult = await axios.get(url, {
+                headers: {
+                    Referer:
+                        'https://www.canyon.com/en-de/outlet-bikes/?searchType=bikes&srule=outlet_high_stock',
+                },
+            });
             log('Got data from remote url=', url);
             return {
                 type: 'outlet',

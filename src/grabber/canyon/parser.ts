@@ -7,25 +7,14 @@ function parseForTargets(targets: ParsingTarget[], htmlBlob: string) {
         results[targetName] = [];
     });
 
-    targets.forEach(
-        ({ name, regexp, keepSlashes, matchWhat = '[^"/]', endDelimiter = '["|/]' }) => {
-            const rawNames = htmlBlob.match(
-                new RegExp(regexp + `["|/]?${matchWhat}*${endDelimiter}`, 'g'),
-            );
-            const filteredNames =
-                rawNames?.filter((name) => !name.match('"[Cc][Aa][Nn][Yy][Oo][Nn]"')) || [];
-            const names = filteredNames.map((hit) => {
-                let temp = hit.replace(regexp, '').replace(/"/g, '');
-
-                if (!keepSlashes) {
-                    temp = temp.replace(/[/]/g, '');
-                }
-
-                return temp.trim();
-            });
-            results[name] = results[name].concat(names);
-        },
-    );
+    targets.forEach(({ name, regexp, captureExpressionIndex }) => {
+        const rawMatches = htmlBlob.matchAll(regexp);
+        const matches: string[] = Array.from(rawMatches)
+            .filter((match) => match.length > captureExpressionIndex)
+            .map((match) => match[captureExpressionIndex])
+            .map((match) => match.trim());
+        results[name] = results[name].concat(matches);
+    });
 
     const firstTarget = targets[0].name;
 
@@ -53,31 +42,47 @@ function parseForTargets(targets: ParsingTarget[], htmlBlob: string) {
 
 interface ParsingTarget {
     name: string;
-    regexp: string;
-    keepSlashes?: boolean;
-    matchWhat?: string;
-    endDelimiter?: string;
+    regexp: RegExp;
+    captureExpressionIndex: number;
 }
 
 function processOutletData(htmlBlob: string): Item[] {
+    htmlBlob = htmlBlob
+        .replaceAll('&quot;', '')
+        .replaceAll('&eacute;', 'é')
+        .replaceAll('&nbsp;', '')
+        .replaceAll('\n', ' ');
     const targets: ParsingTarget[] = [
-        { name: 'names', regexp: ', "name": ' },
-        { name: 'prices', regexp: '"price": ' },
-        { name: 'skus', regexp: '"sku": ' },
-        { name: 'sizes', regexp: 'data-size=' },
-        { name: 'years', regexp: 'data-year=' },
-        { name: 'conditions', regexp: 'itemCondition": "http://schema.org' },
-        { name: 'urls', regexp: '"image": "[^"]*"', keepSlashes: true },
         {
-            name: 'smallImgUrls',
-            regexp: '1199w, ',
-            keepSlashes: true,
-            matchWhat: '[^ ]',
-            endDelimiter: '[ ]',
+            name: 'names',
+            regexp: /data-gtm-impression=[^\]]*{name:([^,]*),/g,
+            captureExpressionIndex: 1,
+        },
+        {
+            name: 'prices',
+            regexp: /data-gtm-impression=[^\]]*metric4:([^,]*),/g,
+            captureExpressionIndex: 1,
+        },
+        {
+            name: 'skus',
+            regexp: /data-gtm-impression=[^\]]*feedProductId:([^,]*),/g,
+            captureExpressionIndex: 1,
+        },
+        {
+            name: 'years',
+            regexp: /data-gtm-impression=[^\]]*dimension50:([^,]*),/g,
+            captureExpressionIndex: 1,
+        },
+        { name: 'sizes', regexp: /Only available in ([^<]*)[<]/g, captureExpressionIndex: 1 },
+        {
+            name: 'urls',
+            regexp: /productTileDefault__imageLink["][^h]*href="([^"]*)["]/g,
+            captureExpressionIndex: 1,
         },
     ];
 
     const results = parseForTargets(targets, htmlBlob);
+    const smallImgUrls = parseForSmallImgUrls(htmlBlob);
 
     const returnValue: Item[] = [];
     results.names.forEach((name, index) => {
@@ -94,7 +99,7 @@ function processOutletData(htmlBlob: string): Item[] {
             size: results.sizes[index],
             modelYear: results.years[index],
             permanent: false,
-            condition: results.conditions[index],
+            condition: 'outlet',
             url:
                 'https://www.canyon.com' +
                 results.urls[index]
@@ -102,7 +107,7 @@ function processOutletData(htmlBlob: string): Item[] {
                     .replace('\n', '')
                     .replace(',', '')
                     .trim(),
-            smallImgUrl: results.smallImgUrls[index],
+            smallImgUrl: smallImgUrls[index],
         });
     });
 
@@ -111,17 +116,14 @@ function processOutletData(htmlBlob: string): Item[] {
 }
 
 function parseForSmallImgUrls(htmlBlob: string): string[] {
-    const singleLineBlob = htmlBlob.replace(/[\r]?\n/g, ' ');
-    const offerSections = singleLineBlob.split(/"image": "/g).slice(1);
+    const offerSections = htmlBlob.split(/ productTileDefault /g).slice(1);
     const smallImgUrls = offerSections.map((section) => {
         const parseForSmallImgResult = parseForTargets(
             [
                 {
                     name: 'smallImgUrls',
-                    regexp: '1199w, ',
-                    keepSlashes: true,
-                    matchWhat: '[^ ]',
-                    endDelimiter: '[ ]',
+                    regexp: /min-width: 1200px[^"]*"[^"]*srcset=["]([^"]*)["]/g,
+                    captureExpressionIndex: 1,
                 },
             ],
             section,
@@ -137,12 +139,33 @@ function parseForSmallImgUrls(htmlBlob: string): string[] {
 }
 
 function processNormalOffer(htmlBlob: string) {
-    const targets = [
-        { name: 'names', regexp: ', "name": ' },
-        { name: 'prices', regexp: '"price": ' },
-        { name: 'skus', regexp: '"sku": ' },
-        { name: 'years', regexp: 'img/bikes' },
-        { name: 'urls', regexp: '"image": "[^"]*"', keepSlashes: true },
+    htmlBlob = htmlBlob.replaceAll('&quot;', '');
+    const targets: ParsingTarget[] = [
+        {
+            name: 'names',
+            regexp: /data-gtm-impression=.*{name:([^,]*),/g,
+            captureExpressionIndex: 1,
+        },
+        {
+            name: 'prices',
+            regexp: /data-gtm-impression=.*metric4:([^,]*),/g,
+            captureExpressionIndex: 1,
+        },
+        {
+            name: 'skus',
+            regexp: /data-gtm-impression=.*feedProductId:([^,]*),/g,
+            captureExpressionIndex: 1,
+        },
+        {
+            name: 'years',
+            regexp: /productTileDefault__image.*images\/full\/full_([^_]*)_/g,
+            captureExpressionIndex: 1,
+        },
+        {
+            name: 'urls',
+            regexp: /productTileDefault__image["][ ]src=["]([^"]*)["]/g,
+            captureExpressionIndex: 1,
+        },
     ];
 
     const results = parseForTargets(targets, htmlBlob);
