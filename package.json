@@ -15,8 +15,8 @@
         "test:integration": "yarn build && c8 --report-dir coverage mocha \"dist/**/*.integration.js\"",
         "format": "prettier --write ./",
         "lint": "eslint ./ --cache --ignore-pattern .gitignore",
-        "grabber": "node src/grabber/main.js",
-        "grabber-initial": "node src/grabber/main.js --summary",
+        "grabber": "yarn build && node dist/src/grabber/main.js",
+        "grabber-initial": "yarn build && node dist/src/grabber/main.js --summary",
         "prepare": "husky install",
         "build": "tsc --build"
     },
